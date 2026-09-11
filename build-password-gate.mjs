@@ -107,7 +107,7 @@ if (!report.includes('data-roster-filter="all">Full Roster</option>')) {
 }
 const top5ModeNavItems = '<li class="toc-mode-item"><button class="toc-mode-button active" type="button" data-mode-target="prospect" aria-selected="true">Cold / New</button></li><li class="toc-mode-item"><button class="toc-mode-button" type="button" data-mode-target="pipeline" aria-selected="false">Open Pipeline / Current Customer</button></li>';
 report = report.replace(/<li class="toc-mode-item">[\s\S]*?<\/li>/g, "");
-if (!report.includes('data-mode-target="prospect"')) {
+if (!report.includes('class="toc-mode-button active"')) {
   report = report.replace('<li><a href="#top5">Top Prospect Conversations</a></li>', `<li><a href="#top5">Top Prospect Conversations</a></li>${top5ModeNavItems}`);
 }
 const top5ModeMobileOptions = '<option value="#top5" data-mode-target="prospect">Cold / New</option><option value="#top5" data-mode-target="pipeline">Open Pipeline / Current Customer</option>';
