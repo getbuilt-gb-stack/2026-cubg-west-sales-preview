@@ -102,7 +102,7 @@ const conversationIdentityCss = `<style id="conversation-account-identity-enhanc
 .conversation-heading>div:first-child{display:grid;grid-template-columns:104px minmax(0,1fr);grid-template-rows:auto auto auto auto;column-gap:14px;align-items:center;min-width:0}.conversation-heading>div:first-child>.tier{grid-column:1/-1;grid-row:1;justify-self:start;margin-bottom:2px}.conversation-heading h3{display:contents}.conversation-heading h3 .organization-logo{grid-column:1;grid-row:2 / span 3;width:104px;height:104px;margin:0;align-self:start;border-radius:7px}.conversation-heading h3 .organization-name{grid-column:2;grid-row:2;min-width:0;color:#153e5c;font-size:20px;font-weight:800;line-height:1.22;overflow-wrap:anywhere}.conversation-heading .asset-meta{grid-column:2;grid-row:3;margin:5px 0 0}.conversation-heading .conversation-attendees{grid-column:2;grid-row:4;margin:5px 0 0}.conversation-heading .pill-row{align-self:start}
 @media(max-width:640px){.conversation-heading>div:first-child{grid-template-columns:80px minmax(0,1fr);column-gap:12px}.conversation-heading h3 .organization-logo{width:80px;height:80px}.conversation-heading h3 .organization-name{font-size:18px}.conversation-heading .asset-meta{font-size:9px}.conversation-heading .conversation-attendees{font-size:11px}}
 </style>`;
-const extraCssWithLogos = `${extraCss}${repCoverageCss}${profileCoverageCss}${heroIdentityCss}${conversationIdentityCss}${logoCss}`;
+const extraCssWithLogos = `${extraCss}${repCoverageCss}${profileCoverageCss}${heroIdentityCss}${logoCss}${conversationIdentityCss}`;
 
 const officialLogoSources = {
   "amucu.org": ["https://www.amucu.org/wp-content/uploads/2024/05/AU-logo_positive_PMS_3-color.svg"],
