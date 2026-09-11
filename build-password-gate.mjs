@@ -213,7 +213,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     logo.setAttribute("aria-label", accountName + " logo");
     const image = document.createElement("img");
     image.alt = "";
-    image.loading = "lazy";
+    image.loading = "eager";
     image.referrerPolicy = "no-referrer";
     const sources = [...new Set([
       ...(officialLogoSources[host] || []),
