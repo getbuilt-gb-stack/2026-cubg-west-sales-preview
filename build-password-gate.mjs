@@ -72,11 +72,13 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 
 const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel .rep-heading{margin-bottom:12px}
-.rep-title-sticky{position:sticky;top:calc(58px + var(--hero-identity-height, 0px));z-index:31;isolation:isolate;margin-bottom:0;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
-.rep-title-sticky>*{position:relative;z-index:1}
-.rep-title-sticky .eyebrow{margin-bottom:6px}
-.rep-title-sticky h3{margin:0}
-@media(max-width:960px){.rep-title-sticky{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px))}}
+.rep-tabs{position:sticky;top:calc(18px + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px));z-index:34;isolation:isolate;margin-top:0;padding:8px 0 9px;background:#f4f7f9;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 0 #f4f7f9}
+.rep-tabs>*{position:relative;z-index:1}
+.rep-panel .rep-heading{position:sticky;top:calc(18px + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px));z-index:33;isolation:isolate;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
+.rep-panel .rep-heading>*{position:relative;z-index:1}
+.rep-panel .rep-heading .eyebrow{margin-bottom:6px}
+.rep-panel .rep-heading h3{margin:0}
+@media(max-width:960px){.rep-tabs{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px))}.rep-panel .rep-heading{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px))}}
 </style>`;
 
 const profileCoverageCss = `<style id="profile-sticky-enhancements">
@@ -254,18 +256,11 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     if (oldStickyHeader) oldStickyHeader.replaceWith(head);
     head.classList.add("profile-head-sticky");
   });
-  document.querySelectorAll(".rep-panel").forEach((panel) => {
-    const heading = panel.querySelector(":scope > .rep-heading");
-    const title = heading?.firstElementChild;
-    if (!heading || !title || panel.querySelector(":scope > .rep-title-sticky")) return;
-    const stickyTitle = document.createElement("div");
-    stickyTitle.className = "rep-title-sticky";
-    stickyTitle.append(title.cloneNode(true));
-    panel.prepend(stickyTitle);
-  });
+  const repSection = document.querySelector("#reps");
+  const repTabs = document.querySelector("#reps ~ .rep-tabs");
   const updateRepHeadingOffsets = () => {
     document.querySelectorAll(".rep-panel").forEach((panel) => {
-      const heading = panel.querySelector(":scope > .rep-title-sticky") || panel.querySelector(":scope > .rep-heading");
+      const heading = panel.querySelector(":scope > .rep-heading");
       if (heading) panel.style.setProperty("--rep-heading-height", Math.ceil(heading.getBoundingClientRect().height) + "px");
     });
   };
@@ -275,6 +270,8 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const isMobile = window.matchMedia("(max-width:960px)").matches;
     document.documentElement.style.setProperty("--toc-sticky-height", isMobile && toc ? Math.ceil(toc.getBoundingClientRect().height) + "px" : "0px");
     document.documentElement.style.setProperty("--hero-identity-height", identity ? Math.ceil(identity.getBoundingClientRect().height) + "px" : "0px");
+    document.documentElement.style.setProperty("--rep-section-height", repSection ? Math.ceil(repSection.getBoundingClientRect().height) + "px" : "42px");
+    document.documentElement.style.setProperty("--rep-tabs-height", repTabs ? Math.ceil(repTabs.getBoundingClientRect().height) + "px" : "52px");
     updateRepHeadingOffsets();
   };
   updateStickyOffsets();
@@ -282,6 +279,8 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   if (window.ResizeObserver) {
     const repHeadingObserver = new ResizeObserver(updateStickyOffsets);
     document.querySelectorAll(".rep-heading").forEach((heading) => repHeadingObserver.observe(heading));
+    if (repSection) repHeadingObserver.observe(repSection);
+    if (repTabs) repHeadingObserver.observe(repTabs);
     const toc = document.querySelector(".toc");
     const identity = document.querySelector(".hero-identity-sticky");
     if (toc) repHeadingObserver.observe(toc);
