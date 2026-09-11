@@ -247,7 +247,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     if (!heading || !title || panel.querySelector(":scope > .rep-title-sticky")) return;
     const stickyTitle = document.createElement("div");
     stickyTitle.className = "rep-title-sticky";
-    stickyTitle.append(title);
+    stickyTitle.append(title.cloneNode(true));
     panel.prepend(stickyTitle);
   });
   const updateRepHeadingOffsets = () => {
