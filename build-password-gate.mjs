@@ -192,6 +192,7 @@ const officialLogoSources = {
   "gtfcu.org": ["https://www.gtfcu.org/assets/img/greater-texas-cu-logo.svg"],
   "holyrosarycu.org": ["https://www.holyrosarycu.org/templates/holy_rosary/images/logo.png"],
   "hometowncu.coop": ["https://www.hometowncu.coop/S3Assets/HomeTown/Images/favicon/apple-touch-icon.png"],
+  "iccu.com": ["https://cdn.iccu.com/wp-content/uploads/2025/01/cropped-ICCU-logomark-green-192x192.png"],
   "inroadscu.org": ["https://www.inroadscu.org/Images/logo.svg"],
   "kitsapcu.org": ["https://kitsapcu.org/getmedia/36c28bb1-52b3-4a25-bb1c-a51bfd2015c2/kcu-new-colors-logo-black.png?width=534&height=110&ext=.png"],
   "logixbanking.com": ["https://www.logixbanking.com/-/media/images/logos/logix_logo.svg?iar=0&hash=7FF9CEFEE7DDCEEFE832A5AF60471227"],
@@ -223,6 +224,7 @@ const officialLogoSources = {
   "vantagewest.org": ["https://vantagewest.org/wp-content/uploads/2025/08/VW-Logo_Full-Color.svg"],
   "vcu.com": ["https://www.vcu.com/images/default-source/default-album/vcu-logo.svg?sfvrsn=8f96a8c5_1"],
   "vicfcu.org": ["https://www.vicfcu.org/home/diFiles/skins/default/images/logo.png"],
+  "wecu.com": ["https://www.wecu.com/wp-content/uploads/cropped-favicon-180x180.png"],
   "wingsfinancial.com": ["https://www.wingscu.com/assets/dist26/img/wings-simple-logo.svg"],
   "wsecu.org": ["https://wsecu.org/img/WSECU_FooterLogo.svg"],
 };
