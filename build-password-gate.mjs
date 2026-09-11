@@ -100,6 +100,62 @@ const logoCss = `<style id="organization-logo-enhancements">
 </style>`;
 const extraCssWithLogos = `${extraCss}${repCoverageCss}${profileCoverageCss}${heroIdentityCss}${logoCss}`;
 
+const officialLogoSources = {
+  "amucu.org": ["https://www.amucu.org/wp-content/uploads/2024/05/AU-logo_positive_PMS_3-color.svg"],
+  "aplusfcu.org": ["https://aplusfcu.org/wp-content/themes/aplusfcu/images/dist/A+_logo.svg"],
+  "atfcu.org": ["https://cdn.prod.website-files.com/685e95cb77b380aafa9d03f1/685e99be5f9b7d334ba156b3_92a2628b14c11e6295a9dad82be7386e_Logo_ATFCU%20Logo%20Blue.svg"],
+  "azfcu.org": ["https://www.arizonafinancial.org/hubfs/AZFinancial_CU_RGB%201.svg"],
+  "bfcu.org": ["https://www.bfcu.org/home/fiFiles/static/images/logo.png"],
+  "cu1.org": ["https://www.cu1.org/hubfs/assets/images/logos/logo-on-dark.svg"],
+  "cuone.org": ["https://www.cuone.org/Images/logo.svg?v=GfVk1R_U7-CU_hAlrq5gBxjSu-d8dmyOTJwu0a0bEz0"],
+  "cuwest.org": ["https://www.cuwest.org/assets/img/credit-union-west.svg"],
+  "desertvalleys.org": ["https://www.desertvalleys.org/images/logo.svg"],
+  "efirstflight.com": ["https://www.firstflightcu.com/wp-content/uploads/2026/06/FFCU-Logo-HORIZ-Blue-crop.png"],
+  "familyfirstny.com": ["https://home.familyfirstny.com/wp-content/uploads/2021/09/icons_for_svg_logo_familyfirst_color.svg"],
+  "fcfcu.com": ["https://www.fcfcu.com/static/fcfcu-logo-a6ae74f0f6b71f305f8cc90b1090e850-cff4b.webp"],
+  "finseccu.com": ["https://static1.squarespace.com/static/ta/5bfc192eb98a787cb5138aad/328/assets/fscu-logo.png"],
+  "firstus.org": ["https://firstus.org/images/svg/FUSLogFirstUS.svg"],
+  "frontiercreditunion.com": ["https://frontiercreditunion.com/wp-content/uploads/2026/01/Frontier-Logo.svg"],
+  "gatherfcu.org": ["https://www.gatherfcu.org/assets/img/gatherfcu-logo.svg"],
+  "gecu.com": ["https://www.gecu.com/siteassets/media-library/project/gecu/com/logo-svg.svg"],
+  "gtfcu.org": ["https://www.gtfcu.org/assets/img/greater-texas-cu-logo.svg"],
+  "holyrosarycu.org": ["https://www.holyrosarycu.org/templates/holy_rosary/images/logo.png"],
+  "hometowncu.coop": ["https://www.hometowncu.coop/S3Assets/HomeTown/images/logo-site.png"],
+  "inroadscu.org": ["https://www.inroadscu.org/Images/logo.svg"],
+  "kitsapcu.org": ["https://kitsapcu.org/getmedia/36c28bb1-52b3-4a25-bb1c-a51bfd2015c2/kcu-new-colors-logo-black.png?width=534&height=110&ext=.png"],
+  "logixbanking.com": ["https://www.logixbanking.com/-/media/images/logos/logix_logo.svg?iar=0&hash=7FF9CEFEE7DDCEEFE832A5AF60471227"],
+  "madcofcu.org": ["https://www.madcofcu.org/wp-content/themes/madison_county_2021/img/logo.svg"],
+  "marinefederalhb.org": ["https://images.squarespace-cdn.com/content/v1/69cbc7146d4ac36e9b97e42d/521bf046-c6de-4342-b889-832eba4aded8/MarineFCULogo.png?format=1500w"],
+  "midoregon.com": ["https://www.midoregon.com/images/logo-dark.png"],
+  "mydrcu.com": ["https://www.desertriverscu.com/wp-content/uploads/2019/11/DRCU_Logo_Horiz__notag_300xhoriz_web.png"],
+  "myoccu.org": ["https://myoccu.org/themes/custom/themekit/logo.svg"],
+  "noblecu.com": ["https://www.noblecu.com/wp-content/themes/ncr-child-theme/images/img-logo-85.png"],
+  "onpointcu.com": ["https://www.onpointcu.com/wp-content/themes/onpointcu-theme/images/OnPoint_logo_header.svg"],
+  "ourcu.com": ["https://images.squarespace-cdn.com/content/v1/5f15a29dfe5be07ce0cac3dd/64204cce-64e7-4fb7-9c3f-d16689728736/OURCU+2024_FIN_RGB.png?format=1500w"],
+  "palmettocitizens.org": ["https://www.palmettocitizens.org/img/svg/logo.svg"],
+  "platinumfcu.org": ["https://www.platinumfcu.org/wp-content/uploads/2025/04/logo.png"],
+  "pnwfcu.org": ["https://www.pnwfcu.org/wp-content/themes/ncr-child-theme/images/img-logo.png"],
+  "pvcu.org": ["https://www.pvcu.org/S3Assets/PVCU/images/logo-site.svg"],
+  "rizecu.com": ["https://rizecu.com/wp-content/uploads/RIZE-logo-4c-h.svg"],
+  "salalcu.org": ["https://www.salalcu.org/wp-content/uploads/2023/11/salal-logo-300x91.png"],
+  "secunm.org": ["https://www.secunm.org/custom/secunm3/image/logo-2x.png"],
+  "selfreliance.com": ["https://www.selfreliance.com/includes/svg/logo.svg?01"],
+  "sierrapacificfcu.org": ["https://www.sierrapacificfcu.org/hs-fs/hubfs/021226_Sierra%20Pacific_90_Logo_Horizontal_Color.png?width=1200&height=1200&name=021226_Sierra%20Pacific_90_Logo_Horizontal_Color.png"],
+  "soundcu.com": ["https://www.soundcu.com/wp-content/themes/soundcu-theme/images/soundcu-logo.svg"],
+  "stcu.org": ["https://stcu.org/images/Logo-STCU-Full-Color.svg"],
+  "suncommunityfcu.org": ["https://cdn.prod.website-files.com/63a218ea0df9a527e152eef6/63fd0d9c1b4680435860ae56_sun_logo_0227Asset%201.svg"],
+  "telcoe.com": ["https://www.telcoe.com/assets/img/brand/logo.png"],
+  "tencu.com": ["https://www.tencu.com/custom/ttcu/image/ttcu-logo-icon.png"],
+  "texomacu.com": ["https://texomacu.com/wp-content/themes/tccu2025/media/ui/icons/tccu-logo.svg"],
+  "unclecu.org": ["https://www.unclecu.org/wp-content/uploads/2024/06/UNCLE_Logo_Website_300x96_Transparent_BG.png"],
+  "utahfirst.com": ["https://utahfirst.com/wp-content/uploads/2026/02/logo-with-r.svg"],
+  "vantagewest.org": ["https://vantagewest.org/wp-content/uploads/2025/08/VW-Logo_Full-Color.svg"],
+  "vcu.com": ["https://www.vcu.com/images/default-source/default-album/vcu-logo.svg?sfvrsn=8f96a8c5_1"],
+  "vicfcu.org": ["https://www.vicfcu.org/home/diFiles/skins/default/images/logo.png"],
+  "wingsfinancial.com": ["https://www.wingscu.com/assets/dist26/img/wings-logo.svg"],
+  "wsecu.org": ["https://wsecu.org/img/WSECU_FooterLogo.svg"],
+};
+
 const navStart = report.indexOf('<nav class="toc">');
 const navEnd = report.indexOf("</nav>", navStart);
 if (navStart < 0 || navEnd < 0) throw new Error("Could not find the report navigation");
@@ -123,6 +179,7 @@ if (report.includes('id="responsive-navigation-enhancements"')) {
 
 const behaviorScript = `<script id="responsive-navigation-behavior">
 (() => {
+  const officialLogoSources = ${JSON.stringify(officialLogoSources)};
   const hero = document.querySelector("header.hero");
   const heroEyebrow = hero?.querySelector(":scope > .eyebrow");
   const heroTitle = hero?.querySelector(":scope > h1");
@@ -133,6 +190,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     hero.parentElement.insertBefore(identity, hero);
   }
   const normalizeAccountName = (value) => value.replace(/\\s+/g, " ").trim().toLowerCase();
+  const normalizeHost = (value) => value?.startsWith("www.") ? value.slice(4) : value;
   const companyDomains = new Map();
   document.querySelectorAll(".table-wrap td").forEach((cell) => {
     const account = cell.querySelector("strong");
@@ -146,7 +204,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   const initials = (name) => name.split(/\\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
   const addOrganizationLogo = (element, accountName) => {
     if (!element || element.querySelector(".organization-logo")) return;
-    const host = companyDomains.get(normalizeAccountName(accountName));
+    const host = normalizeHost(companyDomains.get(normalizeAccountName(accountName)));
     if (!host) return;
     const logo = document.createElement("span");
     logo.className = "organization-logo";
@@ -157,11 +215,11 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     image.alt = "";
     image.loading = "lazy";
     image.referrerPolicy = "no-referrer";
-    const sources = [
-      "https://logo.clearbit.com/" + encodeURIComponent(host),
-      "https://icons.duckduckgo.com/ip3/" + encodeURIComponent(host) + ".ico",
-      "https://" + host + "/favicon.ico"
-    ];
+    const sources = [...new Set([
+      ...(officialLogoSources[host] || []),
+      "https://" + host + "/favicon.ico",
+      "https://icons.duckduckgo.com/ip3/" + encodeURIComponent(host) + ".ico"
+    ])];
     let sourceIndex = 0;
     const tryNextSource = () => {
       if (sourceIndex >= sources.length) return;
