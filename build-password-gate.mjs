@@ -418,7 +418,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       if (button.classList.contains("toc-rep-button")) scrollToSection("#reps");
     }, true);
   });
-  document.querySelectorAll('.conversation-view[data-view="prospect"] .conversation-card').forEach((card, cardIndex) => {
+  document.querySelectorAll('.conversation-view[data-view="prospect"] .conversation-card, .conversation-view[data-view="pipeline"] .conversation-card').forEach((card, cardIndex) => {
     if (card.dataset.progressiveDisclosure === "true") return;
     const people = card.querySelector(".featured-people");
     const insight = card.querySelector(".conversation-insight");
