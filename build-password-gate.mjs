@@ -74,6 +74,15 @@ const unassignedRepTab = '<button class="rep-button " type="button" data-target=
 if (!report.includes('class="rep-button roster-filter-button"')) {
   report = report.replace(unassignedRepTab, `${unassignedRepTab}${fullRosterTab}`);
 }
+const fullRosterNavItem = '<li><button class="toc-rep-button roster-filter-button" type="button" data-roster-filter="all" aria-selected="false">Full Roster</button></li>';
+const unassignedNavItem = /(<li><button class="toc-rep-button[^\"]*" type="button" data-target="rep-unassigned"[^>]*>Unassigned<\/button><\/li>)/;
+if (!report.includes('class="toc-rep-button roster-filter-button"')) {
+  report = report.replace(unassignedNavItem, `$1${fullRosterNavItem}`);
+}
+const fullRosterMobileOption = '<option value="#reps" data-roster-filter="all">Full Roster</option>';
+if (!report.includes('data-roster-filter="all">Full Roster</option>')) {
+  report = report.replace(/(<optgroup label="Rep coverage">[\s\S]*?)(<\/optgroup>)/, `$1${fullRosterMobileOption}$2`);
+}
 
 const extraCss = `<style id="responsive-navigation-enhancements">
 .toc-mobile-bar{display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.toc-select{width:100%;min-height:40px;padding:8px 34px 8px 11px;border:1px solid #c9d8e2;border-radius:5px;background:#fff;color:#294961;font:600 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.section{position:sticky;top:calc(18px + var(--hero-identity-height, 0px));z-index:18;isolation:isolate;margin-top:25px;padding-top:10px;background:#f4f7f9;scroll-margin-top:74px;box-shadow:0 3px 0 #f4f7f9;border-bottom:1px solid #d8e0e7}.section::before{content:"";position:absolute;z-index:-1;top:-22px;right:0;bottom:0;left:0;background:#f4f7f9}.context-disclosure>summary,.conversation-more>summary,.opportunity-card>summary{list-style:none}.context-disclosure>summary::-webkit-details-marker,.conversation-more>summary::-webkit-details-marker,.opportunity-card>summary::-webkit-details-marker{display:none}.disclosure-heading{display:flex;align-items:center;gap:8px}.disclosure-chevron{display:inline-block;width:8px;height:8px;flex:none;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.context-disclosure[open] .disclosure-chevron{transform:rotate(45deg)}.opportunity-card>summary:before{content:"";display:inline-block;width:8px;height:8px;flex:none;margin:0 3px 0 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.opportunity-card[open]>summary:before{transform:rotate(45deg)}.context-disclosure>summary:hover,.conversation-more>summary:hover,.opportunity-card>summary:hover{background:#f1f7f6}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more>summary{padding:10px 2px;cursor:pointer;color:#153e5c;font-size:12px;font-weight:800}.conversation-more>summary:before{content:"";display:inline-block;width:8px;height:8px;margin:0 8px 1px 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.conversation-more[open]>summary:before{transform:rotate(45deg)}.conversation-more-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:2px 0 4px}.conversation-more .conversation-insight{margin-top:10px}
@@ -92,6 +101,7 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 #reps.section{z-index:55;background:#f4f7f9}
 .rep-panel.full-roster{display:block}
 @media(max-width:960px){.rep-tabs{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px))}.rep-panel .rep-heading{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px))}}
+@media(max-width:640px){.rep-tabs{flex-wrap:nowrap;overflow-x:auto;gap:5px;margin:6px 0 8px;padding:5px 0 6px;scrollbar-width:thin}.rep-button{flex:0 0 auto;min-height:28px;padding:5px 7px;font-size:10px;line-height:1.15;white-space:nowrap}.rep-panel .rep-heading{padding:8px 12px 7px;border-radius:6px}.rep-panel .rep-heading .eyebrow{margin-bottom:2px;font-size:9px}.rep-panel .rep-heading h3{font-size:18px;line-height:1.1}.rep-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:6px;text-align:left;font-size:8px;line-height:1.1}.rep-stats b{font-size:15px;line-height:1.05}}
 </style>`;
 
 const profileCoverageCss = `<style id="profile-sticky-enhancements">
@@ -188,7 +198,7 @@ const sectionOptions = [...nav.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)]
 const repOptions = [...nav.matchAll(/<button class="toc-rep-button[^\"]*" type="button" data-target="([^"]+)"[^>]*>([^<]+)<\/button>/g)]
   .map(([, target, label]) => `<option value="#reps" data-rep-target="${target}">${label}</option>`)
   .join("");
-const mobileMenu = `<div class="toc-mobile-bar"><label class="sr-only" for="toc-select">Jump to a section</label><select id="toc-select" class="toc-select" aria-label="Jump to a section"><option value="">On this page...</option>${sectionOptions.replace('<option value="#reps">Rep Coverage</option>', `<option value="#reps">Rep Coverage</option><optgroup label="Rep coverage">${repOptions}</optgroup>`)}</select></div>`;
+const mobileMenu = `<div class="toc-mobile-bar"><label class="sr-only" for="toc-select">Jump to a section</label><select id="toc-select" class="toc-select" aria-label="Jump to a section"><option value="">On this page...</option>${sectionOptions.replace('<option value="#reps">Rep Coverage</option>', `<option value="#reps">Rep Coverage</option><optgroup label="Rep coverage">${repOptions}${fullRosterMobileOption}</optgroup>`)}</select></div>`;
 const navWithMobileMenu = nav.includes('<div class="toc-mobile-bar">')
   ? nav
   : nav.replace('<h5>On This Page</h5>', `${mobileMenu}<h5>On This Page</h5>`);
@@ -337,7 +347,11 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   tocSelect?.addEventListener("change", () => {
     const option = tocSelect.selectedOptions[0];
     const repTarget = option?.dataset.repTarget;
-    if (repTarget && typeof activateRep === "function") {
+    const rosterFilter = option?.dataset.rosterFilter;
+    if (rosterFilter === "all") {
+      showFullRoster();
+      scrollToSection("#reps");
+    } else if (repTarget && typeof activateRep === "function") {
       showRepPanel(repTarget);
       scrollToSection("#reps");
     } else if (tocSelect.value) {
