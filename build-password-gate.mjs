@@ -78,10 +78,9 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 </style>`;
 
 const profileCoverageCss = `<style id="profile-sticky-enhancements">
-.profile-sticky-header{position:sticky;top:calc(58px + var(--rep-heading-height, 0px));z-index:14;margin:-12px -12px 10px;padding:10px 12px 8px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
-.profile-sticky-header .profile-head{margin-bottom:0}
-@media(max-width:960px){.profile-sticky-header{top:calc(110px + var(--rep-heading-height, 0px))}}
-@media(max-width:560px){.profile-sticky-header{top:calc(106px + var(--rep-heading-height, 0px))}}
+.profile-head-sticky{position:sticky;top:calc(58px + var(--rep-heading-height, 0px));z-index:14;margin:-12px -12px 10px;padding:10px 12px 8px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
+@media(max-width:960px){.profile-head-sticky{top:calc(110px + var(--rep-heading-height, 0px))}}
+@media(max-width:560px){.profile-head-sticky{top:calc(106px + var(--rep-heading-height, 0px))}}
 </style>`;
 
 const logoCss = `<style id="organization-logo-enhancements">
@@ -158,11 +157,10 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   document.querySelectorAll(".profile").forEach((profile) => {
     const body = profile.querySelector(".profile-body");
     const head = body?.querySelector(".profile-head");
-    if (!body || !head || body.querySelector(".profile-sticky-header")) return;
-    const stickyHeader = document.createElement("div");
-    stickyHeader.className = "profile-sticky-header";
-    stickyHeader.append(head);
-    body.prepend(stickyHeader);
+    if (!body || !head) return;
+    const oldStickyHeader = body.querySelector(".profile-sticky-header");
+    if (oldStickyHeader) oldStickyHeader.replaceWith(head);
+    head.classList.add("profile-head-sticky");
   });
   document.querySelectorAll(".rep-panel").forEach((panel) => {
     const heading = panel.querySelector(":scope > .rep-heading");
