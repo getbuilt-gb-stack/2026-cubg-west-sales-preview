@@ -119,7 +119,7 @@ if (!report.includes('value="#top5" data-mode-target="prospect"')) {
 
 const extraCss = `<style id="responsive-navigation-enhancements">
 .toc-mobile-bar{display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.toc-select{width:100%;min-height:40px;padding:8px 34px 8px 11px;border:1px solid #c9d8e2;border-radius:5px;background:#fff;color:#294961;font:600 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.section{position:sticky;top:calc(18px + var(--hero-identity-height, 0px));z-index:18;isolation:isolate;margin-top:25px;padding-top:10px;background:#f4f7f9;scroll-margin-top:74px;box-shadow:0 3px 0 #f4f7f9;border-bottom:1px solid #d8e0e7}.section::before{content:"";position:absolute;z-index:-1;top:-22px;right:0;bottom:0;left:0;background:#f4f7f9}.context-disclosure>summary,.conversation-more>summary,.opportunity-card>summary{list-style:none}.context-disclosure>summary::-webkit-details-marker,.conversation-more>summary::-webkit-details-marker,.opportunity-card>summary::-webkit-details-marker{display:none}.disclosure-heading{display:flex;align-items:center;gap:8px}.disclosure-chevron{display:inline-block;width:8px;height:8px;flex:none;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.context-disclosure[open] .disclosure-chevron{transform:rotate(45deg)}.opportunity-card>summary:before{content:"";display:inline-block;width:8px;height:8px;flex:none;margin:0 3px 0 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.opportunity-card[open]>summary:before{transform:rotate(45deg)}.context-disclosure>summary:hover,.conversation-more>summary:hover,.opportunity-card>summary:hover{background:#f1f7f6}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more>summary{padding:10px 2px;cursor:pointer;color:#153e5c;font-size:12px;font-weight:800}.conversation-more>summary:before{content:"";display:inline-block;width:8px;height:8px;margin:0 8px 1px 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.conversation-more[open]>summary:before{transform:rotate(45deg)}.conversation-more-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:2px 0 4px}.conversation-more .conversation-insight{margin-top:10px}
-@media(max-width:960px){.toc{position:sticky;top:var(--hero-identity-height, 84px);z-index:50;width:auto;max-height:none;margin:0 -10px 14px;padding:8px 10px;border-top:0;border-radius:0 0 7px 7px;background:rgba(255,255,255,.97);box-shadow:0 3px 10px rgba(15,35,55,.12)}.toc-mobile-bar{display:block}.toc h5,.toc>ul{display:none}.section{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px));margin-top:22px;padding:11px 8px 9px;font-size:20px}.section::before{top:-22px}.conversation-more-people{grid-template-columns:1fr}.toc-select{appearance:auto}}
+@media(max-width:960px){.toc{position:sticky;top:var(--hero-identity-height, 84px);z-index:50;width:auto;max-height:none;margin:0 -10px 14px;padding:8px 10px;border-top:0;border-radius:0 0 7px 7px;background:rgba(255,255,255,.97);box-shadow:0 3px 10px rgba(15,35,55,.12)}.toc-mobile-bar{display:block}.toc h5,.toc>ul{display:none}.section{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px));margin-top:22px;padding:11px 8px 9px;font-size:20px}.section::before{top:-22px}.conversation-more-people{grid-template-columns:1fr}.toc-select{appearance:auto}main.wrap.mobile-page-mode>.mobile-page-section{display:none!important}main.wrap.mobile-page-mode>.mobile-page-section.mobile-page-active{display:block!important}main.wrap.mobile-page-mode>.mobile-page-active.section,main.wrap.mobile-page-mode>.mobile-page-active.hero{cursor:pointer}main.wrap.mobile-page-mode>.mobile-page-active.section:focus-visible,main.wrap.mobile-page-mode>.mobile-page-active.hero:focus-visible{outline:2px solid #0f766e;outline-offset:2px}}
 @media(max-width:560px){.section{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px));font-size:19px}}
 </style>`;
 
@@ -393,21 +393,64 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   };
   const tocSectionLinks = [...document.querySelectorAll('.toc a[href^="#"]')];
   const tocSectionTargets = tocSectionLinks.map((link) => document.querySelector(link.getAttribute("href"))).filter(Boolean);
+  const mobileViewport = window.matchMedia("(max-width:960px)");
+  const mobilePageSectionIds = new Set(tocSectionTargets.map((section) => section.id));
+  tocSectionTargets.forEach((section) => {
+    section.classList.add("mobile-page-section");
+    section.dataset.mobilePageSection = section.id;
+    let sibling = section.nextElementSibling;
+    while (sibling && !mobilePageSectionIds.has(sibling.id)) {
+      sibling.classList.add("mobile-page-section");
+      sibling.dataset.mobilePageSection = section.id;
+      sibling = sibling.nextElementSibling;
+    }
+  });
+  const setMobileMenuValue = (sectionId) => {
+    if (!tocSelect) return;
+    const options = [...tocSelect.options];
+    const option = options.find((item) => {
+      if (sectionId === "top5") return item.dataset.modeTarget === selectedMode;
+      if (sectionId === "reps") return item.dataset.repTarget === selectedRepTarget || (item.dataset.rosterFilter === "all" && selectedRepTarget === "rep-full-roster");
+      return item.value === "#" + sectionId && !item.dataset.modeTarget && !item.dataset.repTarget && !item.dataset.rosterFilter;
+    });
+    options.forEach((item) => { item.selected = item === option; });
+  };
+  const applyMobilePageSection = (sectionId, {historyMode = "none", scroll = true} = {}) => {
+    if (!mobileViewport.matches || !main || !mobilePageSectionIds.has(sectionId)) return false;
+    main.classList.add("mobile-page-mode");
+    main.dataset.mobilePageSection = sectionId;
+    main.querySelectorAll(":scope > .mobile-page-section").forEach((item) => {
+      item.classList.toggle("mobile-page-active", item.dataset.mobilePageSection === sectionId);
+    });
+    setMobileMenuValue(sectionId);
+    if (historyMode === "push" || historyMode === "replace") {
+      history[historyMode + "State"](null, "", "#" + sectionId);
+    }
+    if (scroll) window.scrollTo({top:0, behavior:"smooth"});
+    if (typeof syncMainMenuState === "function") syncMainMenuState();
+    if (typeof syncSubmenuStates === "function") syncSubmenuStates(sectionId);
+    return true;
+  };
   let pendingMenuSectionId = null;
   let mainMenuSyncFrame = 0;
   const syncMainMenuState = () => {
     mainMenuSyncFrame = 0;
     if (!tocSectionTargets.length) return;
-    const stickySections = [...document.querySelectorAll(".section")];
-    const originalPositions = stickySections.map((section) => section.style.position);
-    stickySections.forEach((section) => { section.style.position = "static"; });
-    const pageTops = tocSectionTargets.map((section) => section.getBoundingClientRect().top + window.scrollY);
-    stickySections.forEach((section, index) => { section.style.position = originalPositions[index]; });
-    const stickyTarget = tocSectionTargets.find((section) => section.classList.contains("section"));
-    const stickyTop = stickyTarget ? parseFloat(getComputedStyle(stickyTarget).top) : 0;
-    const activationLine = window.scrollY + (Number.isFinite(stickyTop) ? stickyTop : 0) + 1;
     let currentIndex = 0;
-    pageTops.forEach((pageTop, index) => { if (pageTop <= activationLine) currentIndex = index; });
+    if (mobileViewport.matches && main?.classList.contains("mobile-page-mode") && main.dataset.mobilePageSection) {
+      const mobileIndex = tocSectionTargets.findIndex((section) => section.id === main.dataset.mobilePageSection);
+      if (mobileIndex >= 0) currentIndex = mobileIndex;
+    } else {
+      const stickySections = [...document.querySelectorAll(".section")];
+      const originalPositions = stickySections.map((section) => section.style.position);
+      stickySections.forEach((section) => { section.style.position = "static"; });
+      const pageTops = tocSectionTargets.map((section) => section.getBoundingClientRect().top + window.scrollY);
+      stickySections.forEach((section, index) => { section.style.position = originalPositions[index]; });
+      const stickyTarget = tocSectionTargets.find((section) => section.classList.contains("section"));
+      const stickyTop = stickyTarget ? parseFloat(getComputedStyle(stickyTarget).top) : 0;
+      const activationLine = window.scrollY + (Number.isFinite(stickyTop) ? stickyTop : 0) + 1;
+      pageTops.forEach((pageTop, index) => { if (pageTop <= activationLine) currentIndex = index; });
+    }
     tocSectionLinks.forEach((link, index) => {
       const active = index === currentIndex;
       link.classList.toggle("active", active);
@@ -423,16 +466,25 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     tocSectionLinks.forEach((link) => mainMenuObserver.observe(link, {attributes:true, attributeFilter:["class"]}));
   }
   scheduleMainMenuSync();
-  const scrollToSection = (selector) => {
+  const scrollToSection = (selector, {historyMode = "push"} = {}) => {
     const target = document.querySelector(selector);
     if (!target) return;
+    if (mobileViewport.matches && mobilePageSectionIds.has(target.id) && typeof applyMobilePageSection === "function") {
+      pendingMenuSectionId = target.id;
+      applyMobilePageSection(target.id, {historyMode, scroll:true});
+      if (typeof syncSubmenuStates === "function") {
+        syncSubmenuStates(target.id);
+        if (typeof schedulePendingMenuSection === "function") schedulePendingMenuSection(target.id);
+      }
+      return;
+    }
     const computedStyle = getComputedStyle(target);
     const stickyTop = target.classList.contains("section") ? parseFloat(computedStyle.top) : NaN;
     const scrollMarginTop = parseFloat(computedStyle.scrollMarginTop);
     const offset = Number.isFinite(stickyTop) ? stickyTop : (Number.isFinite(scrollMarginTop) ? scrollMarginTop : 0);
     pendingMenuSectionId = target.id;
     window.scrollTo({top:Math.max(0, documentTopFor(target) - offset), behavior:"smooth"});
-    history.replaceState(null, "", selector);
+    if (historyMode === "push" || historyMode === "replace") history[historyMode + "State"](null, "", selector);
     if (typeof syncSubmenuStates === "function") {
       syncSubmenuStates(target.id);
       if (typeof schedulePendingMenuSection === "function") schedulePendingMenuSection(target.id);
@@ -442,6 +494,26 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     event.preventDefault();
     scrollToSection(link.getAttribute("href"));
   }, true));
+  const openMobileSectionMenu = () => {
+    if (!mobileViewport.matches || !tocSelect) return;
+    tocSelect.focus({preventScroll:true});
+    tocSelect.click();
+  };
+  tocSectionTargets.forEach((section) => {
+    const label = section.matches(".hero") ? "At a Glance" : section.querySelector(":scope > h2")?.textContent?.trim() || section.textContent.trim();
+    section.setAttribute("role", "button");
+    section.setAttribute("tabindex", "0");
+    section.setAttribute("aria-label", "Open section menu for " + label);
+    section.addEventListener("click", (event) => {
+      if (!mobileViewport.matches || event.target.closest("a,button,select")) return;
+      openMobileSectionMenu();
+    });
+    section.addEventListener("keydown", (event) => {
+      if (!mobileViewport.matches || (event.key !== "Enter" && event.key !== " ")) return;
+      event.preventDefault();
+      openMobileSectionMenu();
+    });
+  });
   let selectedMode = document.querySelector(".conversation-view.active")?.dataset.view || "prospect";
   const activateConversationMode = (mode) => {
     selectedMode = mode;
@@ -518,10 +590,36 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     }, {rootMargin:"-18% 0px -68% 0px", threshold:[.01,.2,.5]});
     menuSections.forEach((section) => submenuObserver.observe(section));
   }
-  if (location.hash === "#roster" || location.hash === "#roster-table") {
-    showFullRoster();
-    scrollToSection("#reps");
-  }
+  const sectionIdFromLocation = () => {
+    const hash = location.hash.toLowerCase();
+    if (hash === "#roster" || hash === "#roster-table") return "reps";
+    const sectionId = hash.slice(1);
+    return mobilePageSectionIds.has(sectionId) ? sectionId : "glance";
+  };
+  const syncMobilePageForLocation = ({scroll = true} = {}) => {
+    const isFullRoster = location.hash.toLowerCase() === "#roster" || location.hash.toLowerCase() === "#roster-table";
+    if (isFullRoster) showFullRoster();
+    const sectionId = sectionIdFromLocation();
+    if (mobileViewport.matches) {
+      applyMobilePageSection(sectionId, {scroll});
+      if (!scroll) window.scrollTo({top:0, behavior:"auto"});
+    } else if (isFullRoster) {
+      scrollToSection("#reps", {historyMode:"replace"});
+    }
+    syncSubmenuStates(sectionId);
+  };
+  window.addEventListener("popstate", () => syncMobilePageForLocation({scroll:true}));
+  const handleMobileViewportChange = () => {
+    if (mobileViewport.matches) {
+      syncMobilePageForLocation({scroll:false});
+    } else {
+      main?.classList.remove("mobile-page-mode");
+      main?.querySelectorAll(":scope > .mobile-page-section").forEach((item) => item.classList.remove("mobile-page-active"));
+      scheduleMainMenuSync();
+    }
+  };
+  if (mobileViewport.addEventListener) mobileViewport.addEventListener("change", handleMobileViewportChange);
+  syncMobilePageForLocation({scroll:false});
   tocSelect?.addEventListener("change", () => {
     const option = tocSelect.selectedOptions[0];
     const repTarget = option?.dataset.repTarget;
