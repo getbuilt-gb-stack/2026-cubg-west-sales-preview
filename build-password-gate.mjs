@@ -70,7 +70,7 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 
 const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel .rep-heading{margin-bottom:12px}
-.rep-title-sticky{position:sticky;top:58px;z-index:30;isolation:isolate;margin-bottom:0;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
+.rep-title-sticky{position:sticky;top:58px;z-index:31;isolation:isolate;margin-bottom:0;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
 .rep-title-sticky>*{position:relative;z-index:1}
 .rep-title-sticky .eyebrow{margin-bottom:6px}
 .rep-title-sticky h3{margin:0}
@@ -79,7 +79,7 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 </style>`;
 
 const profileCoverageCss = `<style id="profile-sticky-enhancements">
-.profile-head-sticky{position:sticky;top:calc(58px + var(--rep-heading-height, 0px));z-index:31;isolation:isolate;margin:-12px -12px 10px;padding:10px 12px 8px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
+.profile-head-sticky{position:sticky;top:calc(58px + var(--rep-heading-height, 0px));z-index:29;isolation:isolate;margin:-12px -12px 10px;padding:10px 12px 8px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
 .profile-head-sticky::after{content:"";position:absolute;z-index:0;right:-1px;bottom:-8px;left:-1px;height:8px;background:#fff}
 .profile-head-sticky>*{position:relative;z-index:1}
 @media(max-width:960px){.profile-head-sticky{top:calc(110px + var(--rep-heading-height, 0px))}}
