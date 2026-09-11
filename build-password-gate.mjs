@@ -65,10 +65,17 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 @media(max-width:560px){.rep-panel .rep-heading{top:106px}}
 </style>`;
 
+const profileCoverageCss = `<style id="profile-sticky-enhancements">
+.profile-sticky-header{position:sticky;top:calc(58px + var(--rep-heading-height, 0px));z-index:14;margin:-12px -12px 10px;padding:12px 12px 9px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
+.profile-sticky-header .profile-head{margin-bottom:8px}
+@media(max-width:960px){.profile-sticky-header{top:calc(110px + var(--rep-heading-height, 0px))}}
+@media(max-width:560px){.profile-sticky-header{top:calc(106px + var(--rep-heading-height, 0px))}}
+</style>`;
+
 const logoCss = `<style id="organization-logo-enhancements">
 .organization-logo{display:inline-grid;place-items:center;width:28px;height:28px;flex:none;margin-right:8px;border:1px solid #d7e2e8;border-radius:5px;background:#eef4f6;color:#183e59;font-size:10px;font-weight:800;line-height:1;vertical-align:-8px;overflow:hidden}.organization-logo>span{grid-area:1/1}.organization-logo img{display:none;grid-area:1/1;width:100%;height:100%;padding:3px;object-fit:contain;background:#fff}.organization-logo.has-image>span{display:none}.organization-logo.has-image img{display:block}.conversation-heading h3,.opportunity-heading-label{display:flex;align-items:center}.opportunity-card>summary:before{display:none!important}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more-toggle{appearance:none;display:flex;align-items:center;width:100%;padding:10px 2px;border:0;background:transparent;color:#153e5c;font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;text-align:left;cursor:pointer}.conversation-more-toggle:hover{background:#eef7f5}.conversation-more-toggle:focus-visible{outline:2px solid #0f766e;outline-offset:2px}.conversation-more-toggle .disclosure-heading{flex:1}.conversation-more-content{margin-top:0}.conversation-more-content[hidden]{display:none}.conversation-more.is-open .disclosure-chevron{transform:rotate(45deg)}.toc{isolation:isolate}.toc-mobile-bar{background:#fff}.toc-select{background:#fff}@media(max-width:960px){.toc{background:#fff}.toc-mobile-bar{position:relative;background:#fff}.section{background:#f4f7f9}}
 </style>`;
-const extraCssWithLogos = `${extraCss}${repCoverageCss}${logoCss}`;
+const extraCssWithLogos = `${extraCss}${repCoverageCss}${profileCoverageCss}${logoCss}`;
 
 const navStart = report.indexOf('<nav class="toc">');
 const navEnd = report.indexOf("</nav>", navStart);
@@ -136,6 +143,30 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   };
   document.querySelectorAll(".conversation-heading h3,.opportunity-heading-label,.news-grid h3").forEach((element) => addOrganizationLogo(element, element.textContent));
   document.querySelectorAll(".profile-head span strong").forEach((element) => addOrganizationLogo(element, element.textContent));
+  document.querySelectorAll(".profile").forEach((profile) => {
+    const body = profile.querySelector(".profile-body");
+    const head = body?.querySelector(".profile-head");
+    const status = head?.nextElementSibling;
+    const methods = status?.nextElementSibling;
+    const assets = methods?.nextElementSibling;
+    if (!body || !head || body.querySelector(".profile-sticky-header") || !status?.classList.contains("pill-row") || !methods?.classList.contains("methods") || !assets?.classList.contains("asset-meta")) return;
+    const stickyHeader = document.createElement("div");
+    stickyHeader.className = "profile-sticky-header";
+    [head, status, methods, assets].forEach((element) => stickyHeader.append(element));
+    body.prepend(stickyHeader);
+  });
+  const updateRepHeadingOffsets = () => {
+    document.querySelectorAll(".rep-panel").forEach((panel) => {
+      const heading = panel.querySelector(".rep-heading");
+      if (heading) panel.style.setProperty("--rep-heading-height", Math.ceil(heading.getBoundingClientRect().height + 12) + "px");
+    });
+  };
+  updateRepHeadingOffsets();
+  window.addEventListener("resize", updateRepHeadingOffsets, {passive:true});
+  if (window.ResizeObserver) {
+    const repHeadingObserver = new ResizeObserver(updateRepHeadingOffsets);
+    document.querySelectorAll(".rep-heading").forEach((heading) => repHeadingObserver.observe(heading));
+  }
   const tocSelect = document.getElementById("toc-select");
   const scrollToSection = (selector) => {
     const target = document.querySelector(selector);
