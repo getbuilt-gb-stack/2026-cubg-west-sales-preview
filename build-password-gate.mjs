@@ -365,6 +365,10 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       button.setAttribute("aria-selected", "true");
     });
   };
+  if (location.hash === "#roster" || location.hash === "#roster-table") {
+    showFullRoster();
+    scrollToSection("#roster");
+  }
   tocSelect?.addEventListener("change", () => {
     const option = tocSelect.selectedOptions[0];
     const repTarget = option?.dataset.repTarget;
