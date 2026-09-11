@@ -237,7 +237,7 @@ button:disabled{opacity:.65;cursor:wait}
     <p id="error" class="error" role="alert" hidden>That password did not unlock the report.</p>
   </form>
 </main>
-<script src="./payload.js"></script>
+<script src="./payload.js?v=${encode(salt).replace(/[^A-Za-z0-9]/g, "")}"></script>
 <script>
 (() => {
   const form = document.getElementById("unlock-form");
