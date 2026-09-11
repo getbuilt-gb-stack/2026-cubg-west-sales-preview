@@ -60,7 +60,7 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 </style>`;
 
 const logoCss = `<style id="organization-logo-enhancements">
-.organization-logo{display:inline-grid;place-items:center;width:28px;height:28px;flex:none;margin-right:8px;border:1px solid #d7e2e8;border-radius:5px;background:#eef4f6;color:#183e59;font-size:10px;font-weight:800;line-height:1;vertical-align:-8px;overflow:hidden}.organization-logo>span{grid-area:1/1}.organization-logo img{display:none;grid-area:1/1;width:100%;height:100%;padding:3px;object-fit:contain;background:#fff}.organization-logo.has-image>span{display:none}.organization-logo.has-image img{display:block}.conversation-heading h3,.opportunity-heading-label{display:flex;align-items:center}.opportunity-card>summary:before{display:none!important}.toc{isolation:isolate}.toc-mobile-bar{background:#fff}.toc-select{background:#fff}@media(max-width:960px){.toc{background:#fff}.toc-mobile-bar{position:relative;background:#fff}.section{background:#f4f7f9}}
+.organization-logo{display:inline-grid;place-items:center;width:28px;height:28px;flex:none;margin-right:8px;border:1px solid #d7e2e8;border-radius:5px;background:#eef4f6;color:#183e59;font-size:10px;font-weight:800;line-height:1;vertical-align:-8px;overflow:hidden}.organization-logo>span{grid-area:1/1}.organization-logo img{display:none;grid-area:1/1;width:100%;height:100%;padding:3px;object-fit:contain;background:#fff}.organization-logo.has-image>span{display:none}.organization-logo.has-image img{display:block}.conversation-heading h3,.opportunity-heading-label{display:flex;align-items:center}.opportunity-card>summary:before{display:none!important}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more-toggle{appearance:none;display:flex;align-items:center;width:100%;padding:10px 2px;border:0;background:transparent;color:#153e5c;font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;text-align:left;cursor:pointer}.conversation-more-toggle:hover{background:#eef7f5}.conversation-more-toggle:focus-visible{outline:2px solid #0f766e;outline-offset:2px}.conversation-more-toggle .disclosure-heading{flex:1}.conversation-more-content{margin-top:0}.conversation-more-content[hidden]{display:none}.conversation-more.is-open .disclosure-chevron{transform:rotate(45deg)}.toc{isolation:isolate}.toc-mobile-bar{background:#fff}.toc-select{background:#fff}@media(max-width:960px){.toc{background:#fff}.toc-mobile-bar{position:relative;background:#fff}.section{background:#f4f7f9}}
 </style>`;
 const extraCssWithLogos = `${extraCss}${logoCss}`;
 
@@ -142,18 +142,33 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const insight = card.querySelector(".conversation-insight");
     const peopleItems = people ? [...people.children].filter((item) => item.classList.contains("featured-person")) : [];
     if (!people || !insight || !peopleItems.length) return;
-    const more = document.createElement("details");
+    const more = document.createElement("div");
     more.className = "conversation-more";
-    more.innerHTML = '<summary>More attendees and account context</summary>';
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "conversation-more-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.innerHTML = '<span class="disclosure-heading"><span class="disclosure-chevron" aria-hidden="true"></span><span>Attendees and Account Context</span></span>';
+    const content = document.createElement("div");
+    content.className = "conversation-more-content";
+    content.hidden = true;
     if (peopleItems.length > 1) {
       const remaining = document.createElement("div");
       remaining.className = "conversation-more-people";
       peopleItems.slice(1).forEach((item) => remaining.append(item));
-      more.append(remaining);
+      content.append(remaining);
     }
-    more.append(insight);
+    content.append(insight);
+    more.append(toggle);
+    toggle.addEventListener("click", () => {
+      const expanded = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", String(expanded));
+      more.classList.toggle("is-open", expanded);
+      content.hidden = !expanded;
+    });
     people.replaceChildren(peopleItems[0]);
-    people.before(more);
+    card.insertBefore(more, people);
+    people.after(content);
     card.dataset.progressiveDisclosure = "true";
   });
 })();
