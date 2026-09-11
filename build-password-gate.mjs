@@ -66,8 +66,8 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 </style>`;
 
 const profileCoverageCss = `<style id="profile-sticky-enhancements">
-.profile-sticky-header{position:sticky;top:calc(58px + var(--rep-heading-height, 0px));z-index:14;margin:-12px -12px 10px;padding:12px 12px 9px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
-.profile-sticky-header .profile-head{margin-bottom:8px}
+.profile-sticky-header{position:sticky;top:calc(58px + var(--rep-heading-height, 0px));z-index:14;margin:-12px -12px 10px;padding:10px 12px 8px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
+.profile-sticky-header .profile-head{margin-bottom:0}
 @media(max-width:960px){.profile-sticky-header{top:calc(110px + var(--rep-heading-height, 0px))}}
 @media(max-width:560px){.profile-sticky-header{top:calc(106px + var(--rep-heading-height, 0px))}}
 </style>`;
@@ -146,13 +146,10 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   document.querySelectorAll(".profile").forEach((profile) => {
     const body = profile.querySelector(".profile-body");
     const head = body?.querySelector(".profile-head");
-    const status = head?.nextElementSibling;
-    const methods = status?.nextElementSibling;
-    const assets = methods?.nextElementSibling;
-    if (!body || !head || body.querySelector(".profile-sticky-header") || !status?.classList.contains("pill-row") || !methods?.classList.contains("methods") || !assets?.classList.contains("asset-meta")) return;
+    if (!body || !head || body.querySelector(".profile-sticky-header")) return;
     const stickyHeader = document.createElement("div");
     stickyHeader.className = "profile-sticky-header";
-    [head, status, methods, assets].forEach((element) => stickyHeader.append(element));
+    stickyHeader.append(head);
     body.prepend(stickyHeader);
   });
   const updateRepHeadingOffsets = () => {
