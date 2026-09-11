@@ -70,8 +70,7 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 
 const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel .rep-heading{margin-bottom:12px}
-.rep-title-sticky{position:sticky;top:58px;z-index:30;isolation:isolate;margin-bottom:12px;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
-.rep-title-sticky::after{content:"";position:absolute;z-index:0;right:-1px;bottom:-12px;left:-1px;height:12px;background:#fff}
+.rep-title-sticky{position:sticky;top:58px;z-index:30;isolation:isolate;margin-bottom:0;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
 .rep-title-sticky>*{position:relative;z-index:1}
 .rep-title-sticky .eyebrow{margin-bottom:6px}
 .rep-title-sticky h3{margin:0}
@@ -178,7 +177,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   const updateRepHeadingOffsets = () => {
     document.querySelectorAll(".rep-panel").forEach((panel) => {
       const heading = panel.querySelector(":scope > .rep-title-sticky") || panel.querySelector(":scope > .rep-heading");
-      if (heading) panel.style.setProperty("--rep-heading-height", Math.ceil(heading.getBoundingClientRect().height + 12) + "px");
+      if (heading) panel.style.setProperty("--rep-heading-height", Math.ceil(heading.getBoundingClientRect().height) + "px");
     });
   };
   updateRepHeadingOffsets();
