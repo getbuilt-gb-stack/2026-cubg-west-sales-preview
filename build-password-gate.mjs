@@ -65,9 +65,11 @@ if (!report.includes(newMobileCss)) {
 }
 report = report.replace(/<li><a href="#roster">(?:Full Roster|Roster Directory)<\/a><\/li>/g, "");
 report = report.replace(/<option value="#roster">(?:Full Roster|Roster Directory)<\/option>/g, "");
-const rosterStart = report.indexOf('<h2 class="section" id="roster">');
-const footerStart = report.indexOf('<footer class="footer">', rosterStart);
-if (rosterStart >= 0 && footerStart >= 0) report = report.slice(0, rosterStart) + report.slice(footerStart);
+const rosterWrapperStart = report.indexOf('<div class="roster-directory">');
+const rosterHeadingStart = report.indexOf('<h2 class="section" id="roster">');
+const rosterBlockStart = rosterWrapperStart >= 0 ? rosterWrapperStart : rosterHeadingStart;
+const rosterFooterStart = report.indexOf('<footer class="footer">', rosterBlockStart);
+if (rosterBlockStart >= 0 && rosterFooterStart >= 0) report = report.slice(0, rosterBlockStart) + report.slice(rosterFooterStart);
 const tieredTables = [...report.matchAll(/<h4 class="subsection">Tiered roster[\s\S]*?<\/h4>[\s\S]*?<div class="table-wrap">(<table>[\s\S]*?<\/table>)<\/div>/g)]
   .map(([, table]) => table);
 const rosterRows = tieredTables
