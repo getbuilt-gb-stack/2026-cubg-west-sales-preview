@@ -98,7 +98,11 @@ const heroIdentityCss = `<style id="hero-identity-sticky-enhancements">
 const logoCss = `<style id="organization-logo-enhancements">
 .organization-logo{display:inline-grid;place-items:center;width:28px;height:28px;flex:none;margin-right:8px;border:1px solid #d7e2e8;border-radius:5px;background:#eef4f6;color:#183e59;font-size:10px;font-weight:800;line-height:1;vertical-align:-8px;overflow:hidden}.organization-logo>span{grid-area:1/1}.organization-logo img{display:none;grid-area:1/1;width:100%;height:100%;padding:3px;object-fit:contain;background:#fff}.organization-logo.has-image>span{display:none}.organization-logo.has-image img{display:block}.conversation-heading h3,.opportunity-heading-label{display:flex;align-items:center}.opportunity-card>summary:before{display:none!important}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more-toggle{appearance:none;display:flex;align-items:center;width:100%;padding:10px 2px;border:0;background:transparent;color:#153e5c;font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;text-align:left;cursor:pointer}.conversation-more-toggle:hover{background:#eef7f5}.conversation-more-toggle:focus-visible{outline:2px solid #0f766e;outline-offset:2px}.conversation-more-toggle .disclosure-heading{flex:1}.conversation-more-content{margin-top:0}.conversation-more-content[hidden]{display:none}.conversation-more.is-open .disclosure-chevron{transform:rotate(45deg)}.toc{isolation:isolate}.toc-mobile-bar{background:#fff}.toc-select{background:#fff}@media(max-width:960px){.toc{background:#fff}.toc-mobile-bar{position:relative;background:#fff}.section{background:#f4f7f9}}
 </style>`;
-const extraCssWithLogos = `${extraCss}${repCoverageCss}${profileCoverageCss}${heroIdentityCss}${logoCss}`;
+const conversationIdentityCss = `<style id="conversation-account-identity-enhancements">
+.conversation-heading>div:first-child{display:grid;grid-template-columns:104px minmax(0,1fr);grid-template-rows:auto auto auto auto;column-gap:14px;align-items:center;min-width:0}.conversation-heading>div:first-child>.tier{grid-column:1/-1;grid-row:1;justify-self:start;margin-bottom:2px}.conversation-heading h3{display:contents}.conversation-heading h3 .organization-logo{grid-column:1;grid-row:2 / span 3;width:104px;height:104px;margin:0;align-self:start;border-radius:7px}.conversation-heading h3 .organization-name{grid-column:2;grid-row:2;min-width:0;color:#153e5c;font-size:20px;font-weight:800;line-height:1.22;overflow-wrap:anywhere}.conversation-heading .asset-meta{grid-column:2;grid-row:3;margin:5px 0 0}.conversation-heading .conversation-attendees{grid-column:2;grid-row:4;margin:5px 0 0}.conversation-heading .pill-row{align-self:start}
+@media(max-width:640px){.conversation-heading>div:first-child{grid-template-columns:80px minmax(0,1fr);column-gap:12px}.conversation-heading h3 .organization-logo{width:80px;height:80px}.conversation-heading h3 .organization-name{font-size:18px}.conversation-heading .asset-meta{font-size:9px}.conversation-heading .conversation-attendees{font-size:11px}}
+</style>`;
+const extraCssWithLogos = `${extraCss}${repCoverageCss}${profileCoverageCss}${heroIdentityCss}${conversationIdentityCss}${logoCss}`;
 
 const officialLogoSources = {
   "amucu.org": ["https://www.amucu.org/wp-content/uploads/2024/05/AU-logo_positive_PMS_3-color.svg"],
@@ -228,8 +232,16 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     image.addEventListener("load", () => logo.classList.add("has-image"), {once:true});
     image.addEventListener("error", tryNextSource);
     logo.append(fallback, image);
+    if (element.matches(".conversation-heading h3")) {
+      const name = document.createElement("span");
+      name.className = "organization-name";
+      name.textContent = accountName;
+      element.textContent = "";
+      element.append(logo, name);
+    } else {
+      element.prepend(logo);
+    }
     tryNextSource();
-    element.prepend(logo);
   };
   document.querySelectorAll(".conversation-heading h3,.opportunity-heading-label,.news-grid h3").forEach((element) => addOrganizationLogo(element, element.textContent));
   document.querySelectorAll(".profile-head span strong").forEach((element) => addOrganizationLogo(element, element.textContent));
