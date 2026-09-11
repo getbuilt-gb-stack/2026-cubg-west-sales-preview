@@ -86,12 +86,12 @@ const profileCoverageCss = `<style id="profile-sticky-enhancements">
 </style>`;
 
 const heroIdentityCss = `<style id="hero-identity-sticky-enhancements">
-.hero-identity-sticky{position:sticky;top:0;z-index:60;isolation:isolate;margin:0;padding:16px 31px 13px;background:#153e5c;color:#fff;border-radius:7px 7px 0 0;box-shadow:0 4px 14px rgba(18,59,91,.16)}
+.hero-identity-sticky{position:sticky;top:0;z-index:60;isolation:isolate;margin:0;padding:16px 31px 13px;background:#153e5c;color:#fff;border-radius:7px;box-shadow:0 4px 14px rgba(18,59,91,.16)}
 .hero-identity-sticky>*{position:relative;z-index:1}
 .hero-identity-sticky .eyebrow{margin:0 0 4px;color:#d3e2eb;font-size:11px;text-transform:uppercase}
 .hero-identity-sticky h1{margin:0;color:#fff;font-size:29px;line-height:1.2}
-.hero-identity-sticky + .hero{margin-top:0;border-radius:0 0 7px 7px}
-@media(max-width:960px){.hero-identity-sticky{top:var(--toc-sticky-height, 58px);margin:0 -10px;padding:12px 20px 11px;border-radius:0;box-shadow:0 4px 12px rgba(18,59,91,.18)}.hero-identity-sticky .eyebrow{font-size:9px}.hero-identity-sticky h1{font-size:22px;line-height:1.2}.hero-identity-sticky + .hero{border-radius:0 0 7px 7px}}
+.hero-identity-sticky + .hero{margin-top:10px;border-radius:7px}
+@media(max-width:960px){.hero-identity-sticky{top:var(--toc-sticky-height, 58px);margin:0 -10px;padding:12px 20px 11px;border-radius:7px;box-shadow:0 4px 12px rgba(18,59,91,.18)}.hero-identity-sticky .eyebrow{font-size:9px}.hero-identity-sticky h1{font-size:22px;line-height:1.2}.hero-identity-sticky + .hero{border-radius:7px}}
 @media(max-width:560px){.hero-identity-sticky{padding:10px 16px 9px}.hero-identity-sticky h1{font-size:19px}}
 </style>`;
 
