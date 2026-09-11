@@ -60,9 +60,12 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 </style>`;
 
 const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
-.rep-panel .rep-heading{position:sticky;top:58px;z-index:15;margin-bottom:12px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
-@media(max-width:960px){.rep-panel .rep-heading{top:110px}}
-@media(max-width:560px){.rep-panel .rep-heading{top:106px}}
+.rep-panel .rep-heading{margin-bottom:12px}
+.rep-title-sticky{position:sticky;top:58px;z-index:15;margin-bottom:12px;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
+.rep-title-sticky .eyebrow{margin-bottom:6px}
+.rep-title-sticky h3{margin:0}
+@media(max-width:960px){.rep-title-sticky{top:110px}}
+@media(max-width:560px){.rep-title-sticky{top:106px}}
 </style>`;
 
 const profileCoverageCss = `<style id="profile-sticky-enhancements">
@@ -152,9 +155,18 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     stickyHeader.append(head);
     body.prepend(stickyHeader);
   });
+  document.querySelectorAll(".rep-panel").forEach((panel) => {
+    const heading = panel.querySelector(":scope > .rep-heading");
+    const title = heading?.firstElementChild;
+    if (!heading || !title || panel.querySelector(":scope > .rep-title-sticky")) return;
+    const stickyTitle = document.createElement("div");
+    stickyTitle.className = "rep-title-sticky";
+    stickyTitle.append(title);
+    panel.prepend(stickyTitle);
+  });
   const updateRepHeadingOffsets = () => {
     document.querySelectorAll(".rep-panel").forEach((panel) => {
-      const heading = panel.querySelector(".rep-heading");
+      const heading = panel.querySelector(":scope > .rep-title-sticky") || panel.querySelector(":scope > .rep-heading");
       if (heading) panel.style.setProperty("--rep-heading-height", Math.ceil(heading.getBoundingClientRect().height + 12) + "px");
     });
   };
