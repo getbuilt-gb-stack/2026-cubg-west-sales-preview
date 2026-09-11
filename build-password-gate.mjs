@@ -68,6 +68,16 @@ report = report.replace(/<option value="#roster">(?:Full Roster|Roster Directory
 const rosterStart = report.indexOf('<h2 class="section" id="roster">');
 const footerStart = report.indexOf('<footer class="footer">', rosterStart);
 if (rosterStart >= 0 && footerStart >= 0) report = report.slice(0, rosterStart) + report.slice(footerStart);
+const tieredTables = [...report.matchAll(/<h4 class="subsection">Tiered roster[\s\S]*?<\/h4>[\s\S]*?<div class="table-wrap">(<table>[\s\S]*?<\/table>)<\/div>/g)]
+  .map(([, table]) => table);
+const rosterRows = tieredTables
+  .map((table) => table.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1] || "")
+  .join("");
+const rosterCount = (rosterRows.match(/<tr\b/g) || []).length;
+if (!rosterCount) throw new Error("Could not rebuild the roster directory from tiered roster tables");
+const rosterDirectory = `<h2 class="section" id="roster">Roster Directory <span class="badge">${rosterCount}</span></h2><p class="section-copy">Tier 1 prioritizes active pipeline, C-suite and executive attendance, senior lending or operations roles, account size, and attendee concentration. Tier 2 preserves the remaining relevant attendees.</p><div class="table-wrap"><table><thead><tr><th>Tier</th><th>Contact</th><th>Role</th><th>Company</th><th>Account context</th><th>Pipeline</th><th>Location</th></tr></thead><tbody>${rosterRows}</tbody></table></div>`;
+const currentFooterStart = report.indexOf('<footer class="footer">');
+report = report.slice(0, currentFooterStart) + rosterDirectory + report.slice(currentFooterStart);
 report = report.replace(/(id="reps">Rep Coverage <span class="badge">)(?:7 TABS|7 REPS \+ ALL)/, (_, prefix) => `${prefix}7 REPS + ALL`);
 const fullRosterTab = '<button class="rep-button roster-filter-button" type="button" data-roster-filter="all" aria-selected="false">Full Roster</button>';
 const unassignedRepTab = '<button class="rep-button " type="button" data-target="rep-unassigned" aria-selected="false">Unassigned</button>';
@@ -79,7 +89,8 @@ const unassignedNavItem = /(<li><button class="toc-rep-button[^\"]*" type="butto
 if (!report.includes('class="toc-rep-button roster-filter-button"')) {
   report = report.replace(unassignedNavItem, `$1${fullRosterNavItem}`);
 }
-const fullRosterMobileOption = '<option value="#reps" data-roster-filter="all">Full Roster</option>';
+const fullRosterMobileOption = '<option value="#roster" data-roster-filter="all">Full Roster</option>';
+report = report.replace(/<option value="#reps" data-roster-filter="all">Full Roster<\/option>/g, fullRosterMobileOption);
 if (!report.includes('data-roster-filter="all">Full Roster</option>')) {
   report = report.replace(/(<optgroup label="Rep coverage">[\s\S]*?)(<\/optgroup>)/, `$1${fullRosterMobileOption}$2`);
 }
@@ -338,7 +349,6 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     activateRep(target);
   };
   const showFullRoster = () => {
-    document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.add("full-roster"));
     document.querySelectorAll(".rep-button,.toc-rep-button").forEach((button) => {
       button.classList.remove("active");
       button.setAttribute("aria-selected", "false");
@@ -354,7 +364,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const rosterFilter = option?.dataset.rosterFilter;
     if (rosterFilter === "all") {
       showFullRoster();
-      scrollToSection("#reps");
+      scrollToSection("#roster");
     } else if (repTarget && typeof activateRep === "function") {
       showRepPanel(repTarget);
       scrollToSection("#reps");
@@ -368,7 +378,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       event.stopImmediatePropagation();
       if (button.classList.contains("roster-filter-button")) {
         showFullRoster();
-        scrollToSection("#reps");
+        scrollToSection("#roster");
         return;
       }
       const target = button.dataset.target;
