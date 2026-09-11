@@ -82,10 +82,12 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 </style>`;
 
 const profileCoverageCss = `<style id="profile-sticky-enhancements">
-.profile-head-sticky{position:sticky;top:calc(18px + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px) + var(--rep-heading-height, 85px));z-index:32;isolation:isolate;margin:-12px -12px 10px;padding:10px 12px 8px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
+.profile-priority-heading{position:sticky;top:calc(18px + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px) + var(--rep-heading-height, 85px));z-index:32;isolation:isolate;margin:0 0 8px;padding:8px 0 7px;background:#f4f7f9;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 0 #f4f7f9}
+.profile-priority-heading::before{content:"";position:absolute;z-index:-1;top:-8px;right:0;bottom:0;left:0;background:#f4f7f9}
+.profile-head-sticky{position:sticky;top:calc(18px + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px) + var(--rep-heading-height, 85px) + var(--profile-priority-height, 0px));z-index:31;isolation:isolate;margin:-12px -12px 10px;padding:10px 12px 8px;background:#fff;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 8px rgba(15,35,55,.09)}
 .profile-head-sticky::after{content:"";position:absolute;z-index:0;right:-1px;bottom:-8px;left:-1px;height:8px;background:#fff}
 .profile-head-sticky>*{position:relative;z-index:1}
-@media(max-width:960px){.profile-head-sticky{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px) + var(--rep-heading-height, 85px))}}
+@media(max-width:960px){.profile-priority-heading{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px) + var(--rep-heading-height, 85px))}.profile-head-sticky{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px) + var(--rep-heading-height, 85px) + var(--profile-priority-height, 0px))}}
 </style>`;
 
 const heroIdentityCss = `<style id="hero-identity-sticky-enhancements">
@@ -256,6 +258,10 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     if (oldStickyHeader) oldStickyHeader.replaceWith(head);
     head.classList.add("profile-head-sticky");
   });
+  document.querySelectorAll(".rep-panel").forEach((panel) => {
+    const priorityHeading = [...panel.querySelectorAll(":scope > h4.subsection")].find((heading) => heading.textContent.trim() === "Priority profiles");
+    if (priorityHeading) priorityHeading.classList.add("profile-priority-heading");
+  });
   const repSection = document.querySelector("#reps");
   const repTabs = document.querySelector("#reps ~ .rep-tabs");
   const updateRepHeadingOffsets = () => {
@@ -272,6 +278,8 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     document.documentElement.style.setProperty("--hero-identity-height", identity ? Math.ceil(identity.getBoundingClientRect().height) + "px" : "0px");
     document.documentElement.style.setProperty("--rep-section-height", repSection ? Math.ceil(repSection.getBoundingClientRect().height) + "px" : "42px");
     document.documentElement.style.setProperty("--rep-tabs-height", repTabs ? Math.ceil(repTabs.getBoundingClientRect().height) + "px" : "52px");
+    const priorityHeading = document.querySelector(".rep-panel.active .profile-priority-heading");
+    document.documentElement.style.setProperty("--profile-priority-height", priorityHeading ? Math.ceil(priorityHeading.getBoundingClientRect().height) + "px" : "0px");
     updateRepHeadingOffsets();
   };
   updateStickyOffsets();
@@ -281,6 +289,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     document.querySelectorAll(".rep-heading").forEach((heading) => repHeadingObserver.observe(heading));
     if (repSection) repHeadingObserver.observe(repSection);
     if (repTabs) repHeadingObserver.observe(repTabs);
+    document.querySelectorAll(".profile-priority-heading").forEach((heading) => repHeadingObserver.observe(heading));
     const toc = document.querySelector(".toc");
     const identity = document.querySelector(".hero-identity-sticky");
     if (toc) repHeadingObserver.observe(toc);
