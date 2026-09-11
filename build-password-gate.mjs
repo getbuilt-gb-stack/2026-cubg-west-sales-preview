@@ -389,6 +389,37 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     stickySections.forEach((section, index) => { section.style.position = originalPositions[index]; });
     return pageTop;
   };
+  const tocSectionLinks = [...document.querySelectorAll('.toc a[href^="#"]')];
+  const tocSectionTargets = tocSectionLinks.map((link) => document.querySelector(link.getAttribute("href"))).filter(Boolean);
+  let mainMenuSyncFrame = 0;
+  const syncMainMenuState = () => {
+    mainMenuSyncFrame = 0;
+    if (!tocSectionTargets.length) return;
+    const stickySections = [...document.querySelectorAll(".section")];
+    const originalPositions = stickySections.map((section) => section.style.position);
+    stickySections.forEach((section) => { section.style.position = "static"; });
+    const pageTops = tocSectionTargets.map((section) => section.getBoundingClientRect().top + window.scrollY);
+    stickySections.forEach((section, index) => { section.style.position = originalPositions[index]; });
+    const stickyTarget = tocSectionTargets.find((section) => section.classList.contains("section"));
+    const stickyTop = stickyTarget ? parseFloat(getComputedStyle(stickyTarget).top) : 0;
+    const activationLine = window.scrollY + (Number.isFinite(stickyTop) ? stickyTop : 0) + 1;
+    let currentIndex = 0;
+    pageTops.forEach((pageTop, index) => { if (pageTop <= activationLine) currentIndex = index; });
+    tocSectionLinks.forEach((link, index) => {
+      const active = index === currentIndex;
+      link.classList.toggle("active", active);
+      link.setAttribute("aria-current", active ? "location" : "false");
+    });
+  };
+  const scheduleMainMenuSync = () => {
+    if (!mainMenuSyncFrame) mainMenuSyncFrame = window.requestAnimationFrame(syncMainMenuState);
+  };
+  window.addEventListener("scroll", scheduleMainMenuSync, {passive:true});
+  if (window.MutationObserver) {
+    const mainMenuObserver = new MutationObserver(scheduleMainMenuSync);
+    tocSectionLinks.forEach((link) => mainMenuObserver.observe(link, {attributes:true, attributeFilter:["class"]}));
+  }
+  scheduleMainMenuSync();
   const scrollToSection = (selector) => {
     const target = document.querySelector(selector);
     if (!target) return;
