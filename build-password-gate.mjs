@@ -70,7 +70,9 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 
 const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel .rep-heading{margin-bottom:12px}
-.rep-title-sticky{position:sticky;top:58px;z-index:15;margin-bottom:12px;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
+.rep-title-sticky{position:sticky;top:58px;z-index:15;isolation:isolate;margin-bottom:12px;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
+.rep-title-sticky::after{content:"";position:absolute;z-index:0;right:-1px;bottom:-13px;left:-1px;height:13px;background:#fff}
+.rep-title-sticky>*{position:relative;z-index:1}
 .rep-title-sticky .eyebrow{margin-bottom:6px}
 .rep-title-sticky h3{margin:0}
 @media(max-width:960px){.rep-title-sticky{top:110px}}
