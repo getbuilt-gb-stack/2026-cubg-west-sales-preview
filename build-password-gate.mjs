@@ -122,7 +122,7 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel.full-roster{display:block}
 .rep-panel.roster-view-hidden{display:none}
 @media(max-width:960px){.rep-tabs{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px))}.rep-panel .rep-heading{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px))}}
-@media(max-width:640px){.rep-tabs{flex-wrap:nowrap;overflow-x:auto;gap:5px;margin:6px 0 8px;padding:5px 0 6px;scrollbar-width:thin}.rep-button{flex:0 0 auto;min-height:28px;padding:5px 7px;font-size:10px;line-height:1.15;white-space:nowrap}.rep-panel .rep-heading{position:static;top:auto;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}.rep-panel .rep-heading>div:first-child{position:sticky;top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px));z-index:33;isolation:isolate;padding:8px 12px 7px;background:#fff;border:1px solid #d8e0e7;border-radius:6px 6px 0 0;box-shadow:0 4px 10px rgba(15,35,55,.08)}.rep-panel .rep-heading .eyebrow{margin-bottom:2px;font-size:9px}.rep-panel .rep-heading h3{font-size:18px;line-height:1.1}.rep-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0;padding:6px 12px 7px;background:#fff;border:1px solid #d8e0e7;border-top:0;border-radius:0 0 6px 6px;text-align:left;font-size:8px;line-height:1.1}.rep-stats b{font-size:15px;line-height:1.05}}
+@media(max-width:640px){.rep-tabs{flex-wrap:nowrap;overflow-x:auto;gap:5px;margin:6px 0 8px;padding:5px 0 6px;scrollbar-width:thin}.rep-button{flex:0 0 auto;min-height:28px;padding:5px 7px;font-size:10px;line-height:1.15;white-space:nowrap}.rep-panel .rep-heading{position:static;top:auto;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}.rep-panel .rep-heading>div:first-child{position:sticky;top:calc(var(--rep-tabs-sticky-bottom, var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px)) + 1px);z-index:35;isolation:isolate;padding:8px 12px 7px;background:#fff;border:1px solid #d8e0e7;border-radius:6px 6px 0 0;box-shadow:0 4px 10px rgba(15,35,55,.08)}.rep-panel .rep-heading .eyebrow{margin-bottom:2px;font-size:9px}.rep-panel .rep-heading h3{font-size:18px;line-height:1.1}.rep-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0;padding:6px 12px 7px;background:#fff;border:1px solid #d8e0e7;border-top:0;border-radius:0 0 6px 6px;text-align:left;font-size:8px;line-height:1.1}.rep-stats b{font-size:15px;line-height:1.05}}
 </style>`;
 
 const profileCoverageCss = `<style id="profile-sticky-enhancements">
@@ -329,7 +329,12 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     document.documentElement.style.setProperty("--toc-sticky-height", isMobile && toc ? Math.ceil(toc.getBoundingClientRect().height) + "px" : "0px");
     document.documentElement.style.setProperty("--hero-identity-height", identity ? Math.ceil(identity.getBoundingClientRect().height) + "px" : "0px");
     document.documentElement.style.setProperty("--rep-section-height", repSection ? Math.ceil(repSection.getBoundingClientRect().height) + "px" : "42px");
-    document.documentElement.style.setProperty("--rep-tabs-height", repTabs ? Math.ceil(repTabs.getBoundingClientRect().height) + "px" : "52px");
+    const repTabsHeight = repTabs ? Math.ceil(repTabs.getBoundingClientRect().height) : 52;
+    document.documentElement.style.setProperty("--rep-tabs-height", repTabsHeight + "px");
+    const repTabsTop = repTabs ? parseFloat(getComputedStyle(repTabs).top) : NaN;
+    if (Number.isFinite(repTabsTop)) {
+      document.documentElement.style.setProperty("--rep-tabs-sticky-bottom", Math.ceil(repTabsTop + repTabsHeight) + "px");
+    }
     const priorityHeading = document.querySelector(".rep-panel.active .profile-priority-heading");
     document.documentElement.style.setProperty("--profile-priority-height", priorityHeading ? Math.ceil(priorityHeading.getBoundingClientRect().height) + "px" : "0px");
     updateRepHeadingOffsets();
