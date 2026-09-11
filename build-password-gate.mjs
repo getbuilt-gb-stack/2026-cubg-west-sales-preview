@@ -55,6 +55,7 @@ for (const styleId of [
   "hero-identity-sticky-enhancements",
   "organization-logo-enhancements",
   "conversation-account-identity-enhancements",
+  "toc-conversation-mode-enhancements",
 ]) {
   report = report.replace(new RegExp(`<style id="${styleId}">[\\s\\S]*?<\\/style>`, "g"), "");
 }
@@ -104,11 +105,25 @@ report = report.replace(/<option value="#(?:reps|roster)" data-roster-filter="al
 if (!report.includes('data-roster-filter="all">Full Roster</option>')) {
   report = report.replace(/(<optgroup label="Rep coverage">[\s\S]*?)(<\/optgroup>)/, `$1${fullRosterMobileOption}$2`);
 }
+const top5ModeNavItems = '<li class="toc-mode-item"><button class="toc-mode-button active" type="button" data-mode-target="prospect" aria-selected="true">Cold / New</button></li><li class="toc-mode-item"><button class="toc-mode-button" type="button" data-mode-target="pipeline" aria-selected="false">Open Pipeline / Current Customer</button></li>';
+report = report.replace(/<li class="toc-mode-item">[\s\S]*?<\/li>/g, "");
+if (!report.includes('data-mode-target="prospect"')) {
+  report = report.replace('<li><a href="#top5">Top Prospect Conversations</a></li>', `<li><a href="#top5">Top Prospect Conversations</a></li>${top5ModeNavItems}`);
+}
+const top5ModeMobileOptions = '<option value="#top5" data-mode-target="prospect">Cold / New</option><option value="#top5" data-mode-target="pipeline">Open Pipeline / Current Customer</option>';
+report = report.replace(/<option value="#top5" data-mode-target="(?:prospect|pipeline)">[^<]*<\/option>/g, "");
+if (!report.includes('value="#top5" data-mode-target="prospect"')) {
+  report = report.replace('<option value="#top5">Top Prospect Conversations</option>', `<option value="#top5">Top Prospect Conversations</option>${top5ModeMobileOptions}`);
+}
 
 const extraCss = `<style id="responsive-navigation-enhancements">
 .toc-mobile-bar{display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.toc-select{width:100%;min-height:40px;padding:8px 34px 8px 11px;border:1px solid #c9d8e2;border-radius:5px;background:#fff;color:#294961;font:600 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.section{position:sticky;top:calc(18px + var(--hero-identity-height, 0px));z-index:18;isolation:isolate;margin-top:25px;padding-top:10px;background:#f4f7f9;scroll-margin-top:74px;box-shadow:0 3px 0 #f4f7f9;border-bottom:1px solid #d8e0e7}.section::before{content:"";position:absolute;z-index:-1;top:-22px;right:0;bottom:0;left:0;background:#f4f7f9}.context-disclosure>summary,.conversation-more>summary,.opportunity-card>summary{list-style:none}.context-disclosure>summary::-webkit-details-marker,.conversation-more>summary::-webkit-details-marker,.opportunity-card>summary::-webkit-details-marker{display:none}.disclosure-heading{display:flex;align-items:center;gap:8px}.disclosure-chevron{display:inline-block;width:8px;height:8px;flex:none;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.context-disclosure[open] .disclosure-chevron{transform:rotate(45deg)}.opportunity-card>summary:before{content:"";display:inline-block;width:8px;height:8px;flex:none;margin:0 3px 0 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.opportunity-card[open]>summary:before{transform:rotate(45deg)}.context-disclosure>summary:hover,.conversation-more>summary:hover,.opportunity-card>summary:hover{background:#f1f7f6}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more>summary{padding:10px 2px;cursor:pointer;color:#153e5c;font-size:12px;font-weight:800}.conversation-more>summary:before{content:"";display:inline-block;width:8px;height:8px;margin:0 8px 1px 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.conversation-more[open]>summary:before{transform:rotate(45deg)}.conversation-more-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:2px 0 4px}.conversation-more .conversation-insight{margin-top:10px}
 @media(max-width:960px){.toc{position:sticky;top:var(--hero-identity-height, 84px);z-index:50;width:auto;max-height:none;margin:0 -10px 14px;padding:8px 10px;border-top:0;border-radius:0 0 7px 7px;background:rgba(255,255,255,.97);box-shadow:0 3px 10px rgba(15,35,55,.12)}.toc-mobile-bar{display:block}.toc h5,.toc>ul{display:none}.section{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px));margin-top:22px;padding:11px 8px 9px;font-size:20px}.section::before{top:-22px}.conversation-more-people{grid-template-columns:1fr}.toc-select{appearance:auto}}
 @media(max-width:560px){.section{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px));font-size:19px}}
+</style>`;
+
+const modeMenuCss = `<style id="toc-conversation-mode-enhancements">
+.toc-mode-button{appearance:none;display:block;width:100%;margin:1px 0;padding:6px 8px;border:0;border-left:3px solid transparent;border-radius:4px;background:transparent;color:#405567;font:600 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.25;text-align:left;cursor:pointer}.toc-mode-button.active,.toc-mode-button:hover{border-left-color:#0f766e;background:#eef7f5;color:#0f4c5c}
 </style>`;
 
 const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
@@ -152,7 +167,7 @@ const conversationIdentityCss = `<style id="conversation-account-identity-enhanc
 .conversation-heading>div:first-child{display:grid;grid-template-columns:104px minmax(0,1fr);grid-template-rows:auto auto auto auto;column-gap:14px;align-items:center;min-width:0}.conversation-heading>div:first-child>.tier{grid-column:1/-1;grid-row:1;justify-self:start;margin-bottom:2px}.conversation-heading h3{display:contents}.conversation-heading h3 .organization-logo{grid-column:1;grid-row:2 / span 3;width:104px;height:104px;margin:0;align-self:start;border-radius:7px}.conversation-heading h3 .organization-name{grid-column:2;grid-row:2;min-width:0;color:#153e5c;font-size:20px;font-weight:800;line-height:1.22;overflow-wrap:anywhere}.conversation-heading .asset-meta{grid-column:2;grid-row:3;margin:5px 0 0}.conversation-heading .conversation-attendees{grid-column:2;grid-row:4;margin:5px 0 0}.conversation-heading .pill-row{align-self:start}
 @media(max-width:640px){.conversation-heading>div:first-child{grid-template-columns:80px minmax(0,1fr);column-gap:12px}.conversation-heading h3 .organization-logo{width:80px;height:80px}.conversation-heading h3 .organization-name{font-size:18px}.conversation-heading .asset-meta{font-size:9px}.conversation-heading .conversation-attendees{font-size:11px}}
 </style>`;
-const extraCssWithLogos = `${extraCss}${repCoverageCss}${profileCoverageCss}${heroIdentityCss}${logoCss}${conversationIdentityCss}`;
+const extraCssWithLogos = `${extraCss}${modeMenuCss}${repCoverageCss}${profileCoverageCss}${heroIdentityCss}${logoCss}${conversationIdentityCss}`;
 
 const officialLogoSources = {
   "amucu.org": ["https://www.amucu.org/wp-content/uploads/2024/05/AU-logo_positive_PMS_3-color.svg"],
@@ -370,6 +385,20 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     target.scrollIntoView({behavior:"smooth", block:"start"});
     history.replaceState(null, "", selector);
   };
+  const activateConversationMode = (mode) => {
+    document.querySelectorAll(".mode,.toc-mode-button").forEach((button) => {
+      const active = button.dataset.mode === mode || button.dataset.modeTarget === mode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-selected", String(active));
+    });
+    document.querySelectorAll(".conversation-view").forEach((view) => view.classList.toggle("active", view.dataset.view === mode));
+  };
+  document.querySelectorAll(".mode").forEach((button) => button.addEventListener("click", () => activateConversationMode(button.dataset.mode)));
+  document.querySelectorAll(".toc-mode-button").forEach((button) => button.addEventListener("click", (event) => {
+    event.preventDefault();
+    activateConversationMode(button.dataset.modeTarget);
+    scrollToSection("#top5");
+  }, true));
   const showRepPanel = (target) => {
     document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.remove("full-roster", "roster-view-hidden"));
     activateRep(target);
@@ -394,7 +423,11 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const option = tocSelect.selectedOptions[0];
     const repTarget = option?.dataset.repTarget;
     const rosterFilter = option?.dataset.rosterFilter;
-    if (rosterFilter === "all") {
+    const modeTarget = option?.dataset.modeTarget;
+    if (modeTarget) {
+      activateConversationMode(modeTarget);
+      scrollToSection("#top5");
+    } else if (rosterFilter === "all") {
       showFullRoster();
       scrollToSection("#reps");
     } else if (repTarget && typeof activateRep === "function") {
