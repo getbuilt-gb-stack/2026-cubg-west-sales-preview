@@ -78,6 +78,7 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel .rep-heading>*{position:relative;z-index:1}
 .rep-panel .rep-heading .eyebrow{margin-bottom:6px}
 .rep-panel .rep-heading h3{margin:0}
+#reps.section{z-index:55;background:#f4f7f9}
 @media(max-width:960px){.rep-tabs{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px))}.rep-panel .rep-heading{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px))}}
 </style>`;
 
