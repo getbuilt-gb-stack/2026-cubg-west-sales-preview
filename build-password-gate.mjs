@@ -129,7 +129,7 @@ const modeMenuCss = `<style id="toc-conversation-mode-enhancements">
 
 const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel .rep-heading{margin-bottom:12px}
-.rep-tabs{position:sticky;top:calc(18px + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px));z-index:34;isolation:isolate;margin-top:0;padding:8px 0 9px;background:#f4f7f9;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 0 #f4f7f9}
+.rep-tabs{position:sticky;top:calc(18px + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px));z-index:40;isolation:isolate;margin-top:0;padding:8px 0 9px;background:#f4f7f9;border-bottom:1px solid #d8e0e7;box-shadow:0 3px 0 #f4f7f9}
 .rep-tabs>*{position:relative;z-index:1}
 .rep-panel .rep-heading{position:sticky;top:calc(18px + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px));z-index:33;isolation:isolate;padding:12px 16px 10px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
 .rep-panel .rep-heading>*{position:relative;z-index:1}
