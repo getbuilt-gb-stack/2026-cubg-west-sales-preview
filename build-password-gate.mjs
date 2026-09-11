@@ -371,7 +371,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const rosterFilter = option?.dataset.rosterFilter;
     if (rosterFilter === "all") {
       showFullRoster();
-      scrollToSection("#roster-table");
+      scrollToSection("#roster");
     } else if (repTarget && typeof activateRep === "function") {
       showRepPanel(repTarget);
       scrollToSection("#reps");
@@ -385,7 +385,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       event.stopImmediatePropagation();
       if (button.classList.contains("roster-filter-button")) {
         showFullRoster();
-        scrollToSection("#roster-table");
+        scrollToSection("#roster");
         return;
       }
       const target = button.dataset.target;
