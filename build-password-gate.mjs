@@ -123,7 +123,7 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 </style>`;
 
 const modeMenuCss = `<style id="toc-conversation-mode-enhancements">
-.toc-mode-item{margin-left:12px}.toc-mode-button{appearance:none;display:block;width:100%;margin:1px 0;padding:6px 8px;border:0;border-left:3px solid transparent;border-radius:4px;background:transparent;color:#405567;font:600 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.25;text-align:left;cursor:pointer}.toc-mode-button.active,.toc-mode-button:hover{border-left-color:#0f766e;background:#eef7f5;color:#0f4c5c}
+.toc-mode-item{margin-left:12px}.toc-mode-button{appearance:none;display:block;width:100%;margin:1px 0;padding:6px 8px;border:0;border-left:3px solid transparent;border-radius:4px;background:transparent;color:#405567;font:600 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.25;text-align:left;cursor:pointer}.toc-mode-button.active,.toc-mode-button:hover{border-left-color:#0f766e;background:#eef7f5;color:#0f4c5c}.toc-subheading~li .toc-rep-button{width:calc(100% - 12px);margin-left:12px}
 </style>`;
 
 const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
