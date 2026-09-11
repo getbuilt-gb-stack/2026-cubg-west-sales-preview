@@ -180,6 +180,7 @@ const officialLogoSources = {
   "cuone.org": ["https://www.cuone.org/Images/logo.svg?v=GfVk1R_U7-CU_hAlrq5gBxjSu-d8dmyOTJwu0a0bEz0"],
   "cuwest.org": ["https://www.cuwest.org/assets/img/credit-union-west.svg"],
   "desertvalleys.org": ["https://www.desertvalleys.org/images/logo.svg"],
+  "elgacu.com": ["https://www.elgacu.com/wp-content/uploads/2025/03/cropped-Favicon-192x192.png"],
   "efirstflight.com": ["https://www.firstflightcu.com/wp-content/uploads/2026/04/cropped-favicon-new-270x270.png"],
   "familyfirstny.com": ["https://home.familyfirstny.com/wp-content/uploads/2021/09/icons_for_svg_logo_familyfirst_color.svg"],
   "fcfcu.com": ["https://www.fcfcu.com/static/fcfcu-logo-a6ae74f0f6b71f305f8cc90b1090e850-cff4b.webp"],
