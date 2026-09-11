@@ -158,7 +158,8 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const people = card.querySelector(".featured-people");
     const insight = card.querySelector(".conversation-insight");
     const peopleItems = people ? [...people.children].filter((item) => item.classList.contains("featured-person")) : [];
-    if (!people || !insight || !peopleItems.length) return;
+    if (!people || !peopleItems.length) return;
+    const body = people.parentElement;
     const more = document.createElement("div");
     more.className = "conversation-more";
     const toggle = document.createElement("button");
@@ -171,13 +172,9 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     content.id = "conversation-context-" + (cardIndex + 1);
     content.hidden = true;
     toggle.setAttribute("aria-controls", content.id);
-    if (peopleItems.length > 1) {
-      const remaining = document.createElement("div");
-      remaining.className = "conversation-more-people";
-      peopleItems.slice(1).forEach((item) => remaining.append(item));
-      content.append(remaining);
-    }
-    content.append(insight);
+    body.insertBefore(more, people);
+    content.append(people);
+    if (insight) content.append(insight);
     more.append(toggle);
     toggle.addEventListener("click", () => {
       const expanded = toggle.getAttribute("aria-expanded") !== "true";
@@ -185,9 +182,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       more.classList.toggle("is-open", expanded);
       content.hidden = !expanded;
     });
-    people.replaceChildren(peopleItems[0]);
-    people.parentElement.insertBefore(more, people);
-    people.after(content);
+    more.after(content);
     card.dataset.progressiveDisclosure = "true";
   });
 })();
