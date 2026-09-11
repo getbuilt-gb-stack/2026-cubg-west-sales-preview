@@ -59,10 +59,16 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 @media(max-width:560px){.section{top:61px;font-size:19px}}
 </style>`;
 
+const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
+.rep-panel .rep-heading{position:sticky;top:58px;z-index:15;margin-bottom:12px;background:#fff;border:1px solid #d8e0e7;border-radius:7px;box-shadow:0 4px 10px rgba(15,35,55,.08)}
+@media(max-width:960px){.rep-panel .rep-heading{top:110px}}
+@media(max-width:560px){.rep-panel .rep-heading{top:106px}}
+</style>`;
+
 const logoCss = `<style id="organization-logo-enhancements">
 .organization-logo{display:inline-grid;place-items:center;width:28px;height:28px;flex:none;margin-right:8px;border:1px solid #d7e2e8;border-radius:5px;background:#eef4f6;color:#183e59;font-size:10px;font-weight:800;line-height:1;vertical-align:-8px;overflow:hidden}.organization-logo>span{grid-area:1/1}.organization-logo img{display:none;grid-area:1/1;width:100%;height:100%;padding:3px;object-fit:contain;background:#fff}.organization-logo.has-image>span{display:none}.organization-logo.has-image img{display:block}.conversation-heading h3,.opportunity-heading-label{display:flex;align-items:center}.opportunity-card>summary:before{display:none!important}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more-toggle{appearance:none;display:flex;align-items:center;width:100%;padding:10px 2px;border:0;background:transparent;color:#153e5c;font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;text-align:left;cursor:pointer}.conversation-more-toggle:hover{background:#eef7f5}.conversation-more-toggle:focus-visible{outline:2px solid #0f766e;outline-offset:2px}.conversation-more-toggle .disclosure-heading{flex:1}.conversation-more-content{margin-top:0}.conversation-more-content[hidden]{display:none}.conversation-more.is-open .disclosure-chevron{transform:rotate(45deg)}.toc{isolation:isolate}.toc-mobile-bar{background:#fff}.toc-select{background:#fff}@media(max-width:960px){.toc{background:#fff}.toc-mobile-bar{position:relative;background:#fff}.section{background:#f4f7f9}}
 </style>`;
-const extraCssWithLogos = `${extraCss}${logoCss}`;
+const extraCssWithLogos = `${extraCss}${repCoverageCss}${logoCss}`;
 
 const navStart = report.indexOf('<nav class="toc">');
 const navEnd = report.indexOf("</nav>", navStart);
@@ -112,9 +118,20 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     image.alt = "";
     image.loading = "lazy";
     image.referrerPolicy = "no-referrer";
-    image.src = "https://www.google.com/s2/favicons?domain=" + encodeURIComponent(host) + "&sz=128";
+    const sources = [
+      "https://logo.clearbit.com/" + encodeURIComponent(host),
+      "https://icons.duckduckgo.com/ip3/" + encodeURIComponent(host) + ".ico",
+      "https://" + host + "/favicon.ico"
+    ];
+    let sourceIndex = 0;
+    const tryNextSource = () => {
+      if (sourceIndex >= sources.length) return;
+      image.src = sources[sourceIndex++];
+    };
     image.addEventListener("load", () => logo.classList.add("has-image"), {once:true});
+    image.addEventListener("error", tryNextSource);
     logo.append(fallback, image);
+    tryNextSource();
     element.prepend(logo);
   };
   document.querySelectorAll(".conversation-heading h3,.opportunity-heading-label,.news-grid h3").forEach((element) => addOrganizationLogo(element, element.textContent));
@@ -136,7 +153,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       scrollToSection(tocSelect.value);
     }
   });
-  document.querySelectorAll('.conversation-view[data-view="prospect"] .conversation-card').forEach((card) => {
+  document.querySelectorAll('.conversation-view[data-view="prospect"] .conversation-card').forEach((card, cardIndex) => {
     if (card.dataset.progressiveDisclosure === "true") return;
     const people = card.querySelector(".featured-people");
     const insight = card.querySelector(".conversation-insight");
@@ -151,7 +168,9 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     toggle.innerHTML = '<span class="disclosure-heading"><span class="disclosure-chevron" aria-hidden="true"></span><span>Attendees and Account Context</span></span>';
     const content = document.createElement("div");
     content.className = "conversation-more-content";
+    content.id = "conversation-context-" + (cardIndex + 1);
     content.hidden = true;
+    toggle.setAttribute("aria-controls", content.id);
     if (peopleItems.length > 1) {
       const remaining = document.createElement("div");
       remaining.className = "conversation-more-people";
