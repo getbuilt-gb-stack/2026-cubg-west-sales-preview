@@ -154,7 +154,7 @@ const officialLogoSources = {
   "soundcu.com": ["https://www.soundcu.com/wp-content/themes/soundcu-theme/images/soundcu-logo.svg"],
   "stcu.org": ["https://stcu.org/images/Logo-STCU-Full-Color.svg"],
   "suncommunityfcu.org": ["https://cdn.prod.website-files.com/63a218ea0df9a527e152eef6/63fd0d9c1b4680435860ae56_sun_logo_0227Asset%201.svg"],
-  "telcoe.com": ["https://www.telcoe.com/assets/img/brand/logo.png"],
+  "telcoe.com": ["https://www.telcoe.com/assets/img/brand/favicon.png", "https://www.telcoe.com/assets/img/brand/logo.png"],
   "tencu.com": ["https://www.tencu.com/custom/ttcu/image/ttcu-logo-icon.png"],
   "texomacu.com": ["https://texomacu.com/wp-content/themes/tccu2025/media/ui/icons/tccu-logo.svg"],
   "unclecu.org": ["https://www.unclecu.org/wp-content/uploads/2024/06/UNCLE_Logo_Website_300x96_Transparent_BG.png"],
