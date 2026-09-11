@@ -63,6 +63,14 @@ if (report.includes(oldMobileCss)) report = report.replace(oldMobileCss, newMobi
 if (!report.includes(newMobileCss)) {
   throw new Error("Could not find the expected mobile menu CSS");
 }
+report = report.replace(/(<a href="#roster">)Full Roster(<\/a>)/g, "$1Roster Directory$2");
+report = report.replace(/(<option value="#roster">)Full Roster(<\/option>)/g, "$1Roster Directory$2");
+report = report.replace(/(<h2 class="section" id="roster">)Full Roster(\s*<span)/, "$1Roster Directory$2");
+const fullRosterTab = '<button class="rep-button roster-filter-button" type="button" data-roster-filter="all" aria-selected="false">Full Roster</button>';
+const unassignedRepTab = '<button class="rep-button " type="button" data-target="rep-unassigned" aria-selected="false">Unassigned</button>';
+if (!report.includes('class="rep-button roster-filter-button"')) {
+  report = report.replace(unassignedRepTab, `${unassignedRepTab}${fullRosterTab}`);
+}
 
 const extraCss = `<style id="responsive-navigation-enhancements">
 .toc-mobile-bar{display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.toc-select{width:100%;min-height:40px;padding:8px 34px 8px 11px;border:1px solid #c9d8e2;border-radius:5px;background:#fff;color:#294961;font:600 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.section{position:sticky;top:calc(18px + var(--hero-identity-height, 0px));z-index:18;isolation:isolate;margin-top:25px;padding-top:10px;background:#f4f7f9;scroll-margin-top:74px;box-shadow:0 3px 0 #f4f7f9;border-bottom:1px solid #d8e0e7}.section::before{content:"";position:absolute;z-index:-1;top:-22px;right:0;bottom:0;left:0;background:#f4f7f9}.context-disclosure>summary,.conversation-more>summary,.opportunity-card>summary{list-style:none}.context-disclosure>summary::-webkit-details-marker,.conversation-more>summary::-webkit-details-marker,.opportunity-card>summary::-webkit-details-marker{display:none}.disclosure-heading{display:flex;align-items:center;gap:8px}.disclosure-chevron{display:inline-block;width:8px;height:8px;flex:none;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.context-disclosure[open] .disclosure-chevron{transform:rotate(45deg)}.opportunity-card>summary:before{content:"";display:inline-block;width:8px;height:8px;flex:none;margin:0 3px 0 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.opportunity-card[open]>summary:before{transform:rotate(45deg)}.context-disclosure>summary:hover,.conversation-more>summary:hover,.opportunity-card>summary:hover{background:#f1f7f6}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more>summary{padding:10px 2px;cursor:pointer;color:#153e5c;font-size:12px;font-weight:800}.conversation-more>summary:before{content:"";display:inline-block;width:8px;height:8px;margin:0 8px 1px 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.conversation-more[open]>summary:before{transform:rotate(45deg)}.conversation-more-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:2px 0 4px}.conversation-more .conversation-insight{margin-top:10px}
@@ -79,6 +87,7 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel .rep-heading .eyebrow{margin-bottom:6px}
 .rep-panel .rep-heading h3{margin:0}
 #reps.section{z-index:55;background:#f4f7f9}
+#roster table tbody tr[hidden]{display:none}
 @media(max-width:960px){.rep-tabs{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px))}.rep-panel .rep-heading{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px))}}
 </style>`;
 
@@ -307,15 +316,64 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     target.scrollIntoView({behavior:"smooth", block:"start"});
     history.replaceState(null, "", selector);
   };
+  const rosterSection = document.getElementById("roster");
+  const rosterRows = [...(rosterSection?.querySelectorAll("tbody tr") || [])];
+  const rosterOwnerFromRow = (row) => {
+    const context = row.querySelector("td:nth-child(5)")?.textContent || "";
+    return context.match(/Account owner:\s*(.+)/i)?.[1].trim() || "Unassigned";
+  };
+  const ownerNameFromTarget = (target) => target === "rep-unassigned"
+    ? "Unassigned"
+    : target.replace(/^rep-/, "").replace(/-/g, " ");
+  const isRosterVisible = () => {
+    const rect = rosterSection?.getBoundingClientRect();
+    return Boolean(rect && rect.top < window.innerHeight && rect.bottom > 0);
+  };
+  const setRosterFilter = (target) => {
+    if (!rosterSection) return;
+    const showAll = target === "all";
+    const owner = normalizeAccountName(ownerNameFromTarget(target));
+    rosterRows.forEach((row) => {
+      const visible = showAll || normalizeAccountName(rosterOwnerFromRow(row)) === owner;
+      row.hidden = !visible;
+      row.setAttribute("aria-hidden", String(!visible));
+    });
+    rosterSection.dataset.ownerFilter = showAll ? "all" : target;
+    document.querySelectorAll(".roster-filter-button").forEach((button) => {
+      button.classList.toggle("active", showAll);
+      button.setAttribute("aria-selected", String(showAll));
+    });
+  };
   tocSelect?.addEventListener("change", () => {
     const option = tocSelect.selectedOptions[0];
     const repTarget = option?.dataset.repTarget;
     if (repTarget && typeof activateRep === "function") {
       activateRep(repTarget);
-      scrollToSection("#reps");
+      setRosterFilter(repTarget);
+      if (!isRosterVisible()) scrollToSection("#reps");
     } else if (tocSelect.value) {
+      if (tocSelect.value === "#roster") setRosterFilter("all");
       scrollToSection(tocSelect.value);
     }
+  });
+  setRosterFilter("all");
+  document.querySelectorAll(".rep-button,.toc-rep-button").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (button.classList.contains("roster-filter-button")) {
+        setRosterFilter("all");
+        scrollToSection("#roster");
+        return;
+      }
+      const target = button.dataset.target;
+      activateRep(target);
+      setRosterFilter(target);
+      if (button.classList.contains("toc-rep-button") && !isRosterVisible()) scrollToSection("#reps");
+    }, true);
+  });
+  document.querySelectorAll('.toc a[href="#roster"]').forEach((link) => {
+    link.addEventListener("click", () => setRosterFilter("all"));
   });
   document.querySelectorAll('.conversation-view[data-view="prospect"] .conversation-card').forEach((card, cardIndex) => {
     if (card.dataset.progressiveDisclosure === "true") return;
