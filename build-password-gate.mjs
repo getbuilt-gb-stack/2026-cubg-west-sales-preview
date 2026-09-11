@@ -48,6 +48,15 @@ const oldMobileCss = "@media(max-width:960px){body{padding:15px 10px}.layout{dis
 const newMobileCss = "@media(max-width:960px){body{padding:15px 10px}.layout{display:block}.toc{position:static;width:auto;max-height:none;margin-bottom:14px}.toc ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px}.toc a,.toc-rep-button{min-height:34px;padding:7px 8px;display:flex;align-items:center;overflow-wrap:anywhere}.toc-subheading{grid-column:1/-1}.news-grid,.profile-grid{grid-template-columns:1fr}.rep-heading{display:block}.rep-stats{justify-content:flex-start;margin-top:12px;text-align:left}.hero{padding:23px 20px}.hero h1{font-size:25px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.toc ul{grid-template-columns:1fr}.toc a,.toc-rep-button{min-height:36px}}";
 
 let report = reportSource;
+for (const styleId of [
+  "responsive-navigation-enhancements",
+  "rep-coverage-sticky-enhancements",
+  "profile-sticky-enhancements",
+  "organization-logo-enhancements",
+]) {
+  report = report.replace(new RegExp(`<style id="${styleId}">[\\s\\S]*?<\\/style>`, "g"), "");
+}
+report = report.replace(/<script id="responsive-navigation-behavior">[\s\S]*?<\/script>/g, "");
 if (report.includes(oldMobileCss)) report = report.replace(oldMobileCss, newMobileCss);
 if (!report.includes(newMobileCss)) {
   throw new Error("Could not find the expected mobile menu CSS");
