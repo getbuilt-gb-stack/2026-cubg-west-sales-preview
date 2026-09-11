@@ -75,11 +75,18 @@ const tieredTables = [...report.matchAll(/<h4 class="subsection">Tiered roster[\
 const rosterRows = tieredTables
   .map((table) => table.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1] || "")
   .join("");
-const rosterCount = (rosterRows.match(/<tr\b/g) || []).length;
-if (!rosterCount) throw new Error("Could not rebuild the roster directory from tiered roster tables");
-const rosterDirectory = `<div class="roster-directory"><h2 class="section" id="roster">Roster Directory <span class="badge">${rosterCount}</span></h2><p class="section-copy">Tier 1 prioritizes active pipeline, C-suite and executive attendance, senior lending or operations roles, account size, and attendee concentration. Tier 2 preserves the remaining relevant attendees.</p><div class="table-wrap" id="roster-table"><table><thead><tr><th>Tier</th><th>Contact</th><th>Role</th><th>Company</th><th>Account context</th><th>Pipeline</th><th>Location</th></tr></thead><tbody>${rosterRows}</tbody></table></div></div>`;
+const rosterRowHtml = [...rosterRows.matchAll(/<tr\b[\s\S]*?<\/tr>/g)].map(([row]) => row);
+const stripMarkup = (value) => value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const rowCells = (row) => [...row.matchAll(/<td\b[\s\S]*?<\/td>/g)].map(([cell]) => stripMarkup(cell));
+const rosterData = rosterRowHtml.map(rowCells);
+const rosterCount = rosterData.length;
+const accountCount = new Set(rosterData.map((cells) => cells[3]).filter(Boolean)).size;
+const pipelineAccountCount = new Set(rosterData.filter((cells) => /open deal/.test(cells[5] || "")).map((cells) => cells[3]).filter(Boolean)).size;
+const tierOneCount = rosterData.filter((cells) => /class="tier one"/.test(rosterRowHtml[rosterData.indexOf(cells)] || "")).length;
+if (!rosterCount) throw new Error("Could not rebuild the full roster panel from tiered roster tables");
+const fullRosterPanel = `<section class="rep-panel" id="rep-full-roster"><div class="rep-heading"><div><div class="eyebrow">Account coverage</div><h3>Full Roster</h3></div><div class="rep-stats"><span><b>${rosterCount}</b> attendees</span><span><b>${accountCount}</b> accounts</span><span><b>${pipelineAccountCount}</b> pipeline accounts</span><span><b>${tierOneCount}</b> Tier 1</span></div></div><p class="section-copy">Tier 1 prioritizes active pipeline, C-suite and executive attendance, senior lending or operations roles, account size, and attendee concentration. Tier 2 preserves the remaining relevant attendees.</p><h4 class="subsection">Tiered roster <span class="badge">${rosterCount}</span></h4><div class="table-wrap"><table><thead><tr><th>Tier</th><th>Contact</th><th>Role</th><th>Company</th><th>Account context</th><th>Pipeline</th><th>Location</th></tr></thead><tbody>${rosterRows}</tbody></table></div></section>`;
 const currentFooterStart = report.indexOf('<footer class="footer">');
-report = report.slice(0, currentFooterStart) + rosterDirectory + report.slice(currentFooterStart);
+report = report.slice(0, currentFooterStart) + fullRosterPanel + report.slice(currentFooterStart);
 report = report.replace(/(id="reps">Rep Coverage <span class="badge">)(?:7 TABS|7 REPS \+ ALL)/, (_, prefix) => `${prefix}7 REPS + ALL`);
 const fullRosterTab = '<button class="rep-button roster-filter-button" type="button" data-roster-filter="all" aria-selected="false">Full Roster</button>';
 const unassignedRepTab = '<button class="rep-button " type="button" data-target="rep-unassigned" aria-selected="false">Unassigned</button>';
@@ -91,8 +98,8 @@ const unassignedNavItem = /(<li><button class="toc-rep-button[^\"]*" type="butto
 if (!report.includes('class="toc-rep-button roster-filter-button"')) {
   report = report.replace(unassignedNavItem, `$1${fullRosterNavItem}`);
 }
-const fullRosterMobileOption = '<option value="#roster" data-roster-filter="all">Full Roster</option>';
-report = report.replace(/<option value="#reps" data-roster-filter="all">Full Roster<\/option>/g, fullRosterMobileOption);
+const fullRosterMobileOption = '<option value="#reps" data-roster-filter="all">Full Roster</option>';
+report = report.replace(/<option value="#(?:reps|roster)" data-roster-filter="all">Full Roster<\/option>/g, fullRosterMobileOption);
 if (!report.includes('data-roster-filter="all">Full Roster</option>')) {
   report = report.replace(/(<optgroup label="Rep coverage">[\s\S]*?)(<\/optgroup>)/, `$1${fullRosterMobileOption}$2`);
 }
@@ -114,7 +121,6 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 #reps.section{z-index:55;background:#f4f7f9}
 .rep-panel.full-roster{display:block}
 .rep-panel.roster-view-hidden{display:none}
-.roster-directory{display:none}.roster-directory.is-visible{display:block}.roster-directory #roster-table{scroll-margin-top:calc(18px + var(--toc-sticky-height, 0px) + var(--hero-identity-height, 0px) + 48px)}
 @media(max-width:960px){.rep-tabs{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px))}.rep-panel .rep-heading{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px))}}
 @media(max-width:640px){.rep-tabs{flex-wrap:nowrap;overflow-x:auto;gap:5px;margin:6px 0 8px;padding:5px 0 6px;scrollbar-width:thin}.rep-button{flex:0 0 auto;min-height:28px;padding:5px 7px;font-size:10px;line-height:1.15;white-space:nowrap}.rep-panel .rep-heading{position:static;top:auto;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}.rep-panel .rep-heading>div:first-child{position:sticky;top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px));z-index:33;isolation:isolate;padding:8px 12px 7px;background:#fff;border:1px solid #d8e0e7;border-radius:6px 6px 0 0;box-shadow:0 4px 10px rgba(15,35,55,.08)}.rep-panel .rep-heading .eyebrow{margin-bottom:2px;font-size:9px}.rep-panel .rep-heading h3{font-size:18px;line-height:1.1}.rep-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0;padding:6px 12px 7px;background:#fff;border:1px solid #d8e0e7;border-top:0;border-radius:0 0 6px 6px;text-align:left;font-size:8px;line-height:1.1}.rep-stats b{font-size:15px;line-height:1.05}}
 </style>`;
@@ -350,12 +356,11 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   };
   const showRepPanel = (target) => {
     document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.remove("full-roster", "roster-view-hidden"));
-    document.querySelector(".roster-directory")?.classList.remove("is-visible");
     activateRep(target);
   };
   const showFullRoster = () => {
-    document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.add("roster-view-hidden"));
-    document.querySelector(".roster-directory")?.classList.add("is-visible");
+    document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.remove("full-roster", "roster-view-hidden"));
+    activateRep("rep-full-roster");
     document.querySelectorAll(".rep-button,.toc-rep-button").forEach((button) => {
       button.classList.remove("active");
       button.setAttribute("aria-selected", "false");
@@ -367,7 +372,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   };
   if (location.hash === "#roster" || location.hash === "#roster-table") {
     showFullRoster();
-    scrollToSection("#roster");
+    scrollToSection("#reps");
   }
   tocSelect?.addEventListener("change", () => {
     const option = tocSelect.selectedOptions[0];
@@ -375,7 +380,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const rosterFilter = option?.dataset.rosterFilter;
     if (rosterFilter === "all") {
       showFullRoster();
-      scrollToSection("#roster");
+      scrollToSection("#reps");
     } else if (repTarget && typeof activateRep === "function") {
       showRepPanel(repTarget);
       scrollToSection("#reps");
@@ -389,7 +394,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       event.stopImmediatePropagation();
       if (button.classList.contains("roster-filter-button")) {
         showFullRoster();
-        scrollToSection("#roster");
+        scrollToSection("#reps");
         return;
       }
       const target = button.dataset.target;
