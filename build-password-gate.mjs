@@ -386,7 +386,9 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     target.scrollIntoView({behavior:"smooth", block:"start"});
     history.replaceState(null, "", selector);
   };
+  let selectedMode = document.querySelector(".conversation-view.active")?.dataset.view || "prospect";
   const activateConversationMode = (mode) => {
+    selectedMode = mode;
     document.querySelectorAll(".mode,.toc-mode-button").forEach((button) => {
       const active = button.dataset.mode === mode || button.dataset.modeTarget === mode;
       button.classList.toggle("active", active);
@@ -400,11 +402,14 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     activateConversationMode(button.dataset.modeTarget);
     scrollToSection("#top5");
   }, true));
+  let selectedRepTarget = document.querySelector(".rep-panel.active")?.id || "rep-brittany-duncan";
   const showRepPanel = (target) => {
+    selectedRepTarget = target;
     document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.remove("full-roster", "roster-view-hidden"));
     activateRep(target);
   };
   const showFullRoster = () => {
+    selectedRepTarget = "rep-full-roster";
     document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.remove("full-roster", "roster-view-hidden"));
     activateRep("rep-full-roster");
     document.querySelectorAll(".rep-button,.toc-rep-button").forEach((button) => {
@@ -416,6 +421,28 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       button.setAttribute("aria-selected", "true");
     });
   };
+  const syncSubmenuStates = (sectionId) => {
+    const inTop5 = sectionId === "top5";
+    document.querySelectorAll(".toc-mode-button").forEach((button) => {
+      const active = inTop5 && button.dataset.modeTarget === selectedMode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-selected", String(active));
+    });
+    const inReps = sectionId === "reps";
+    document.querySelectorAll(".toc-rep-button").forEach((button) => {
+      const active = inReps && ((button.dataset.rosterFilter === "all" && selectedRepTarget === "rep-full-roster") || button.dataset.target === selectedRepTarget);
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-selected", String(active));
+    });
+  };
+  if (window.IntersectionObserver) {
+    const menuSections = ["#glance", "#top5", "#opps", "#news", "#reps"].map((selector) => document.querySelector(selector)).filter(Boolean);
+    const submenuObserver = new IntersectionObserver((entries) => {
+      const current = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (current) syncSubmenuStates(current.target.id);
+    }, {rootMargin:"-18% 0px -68% 0px", threshold:[.01,.2,.5]});
+    menuSections.forEach((section) => submenuObserver.observe(section));
+  }
   if (location.hash === "#roster" || location.hash === "#roster-table") {
     showFullRoster();
     scrollToSection("#reps");
