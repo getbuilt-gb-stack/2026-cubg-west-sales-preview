@@ -54,6 +54,7 @@ for (const styleId of [
   "profile-sticky-enhancements",
   "hero-identity-sticky-enhancements",
   "organization-logo-enhancements",
+  "conversation-account-identity-enhancements",
 ]) {
   report = report.replace(new RegExp(`<style id="${styleId}">[\\s\\S]*?<\\/style>`, "g"), "");
 }
