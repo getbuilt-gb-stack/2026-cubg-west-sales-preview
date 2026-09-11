@@ -380,12 +380,28 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     if (identity) repHeadingObserver.observe(identity);
   }
   const tocSelect = document.getElementById("toc-select");
+  const documentTopFor = (target) => {
+    const stickySections = [...document.querySelectorAll(".section")];
+    const originalPositions = stickySections.map((section) => section.style.position);
+    stickySections.forEach((section) => { section.style.position = "static"; });
+    const pageTop = target.getBoundingClientRect().top + window.scrollY;
+    stickySections.forEach((section, index) => { section.style.position = originalPositions[index]; });
+    return pageTop;
+  };
   const scrollToSection = (selector) => {
     const target = document.querySelector(selector);
     if (!target) return;
-    target.scrollIntoView({behavior:"smooth", block:"start"});
+    const computedStyle = getComputedStyle(target);
+    const stickyTop = target.classList.contains("section") ? parseFloat(computedStyle.top) : NaN;
+    const scrollMarginTop = parseFloat(computedStyle.scrollMarginTop);
+    const offset = Number.isFinite(stickyTop) ? stickyTop : (Number.isFinite(scrollMarginTop) ? scrollMarginTop : 0);
+    window.scrollTo({top:Math.max(0, documentTopFor(target) - offset), behavior:"smooth"});
     history.replaceState(null, "", selector);
   };
+  document.querySelectorAll('.toc a[href^="#"]').forEach((link) => link.addEventListener("click", (event) => {
+    event.preventDefault();
+    scrollToSection(link.getAttribute("href"));
+  }, true));
   let selectedMode = document.querySelector(".conversation-view.active")?.dataset.view || "prospect";
   const activateConversationMode = (mode) => {
     selectedMode = mode;
