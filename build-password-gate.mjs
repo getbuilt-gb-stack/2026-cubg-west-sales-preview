@@ -93,7 +93,7 @@ if (report.includes('id="responsive-navigation-enhancements"')) {
 
 const behaviorScript = `<script id="responsive-navigation-behavior">
 (() => {
-  const normalizeAccountName = (value) => value.replace(/\s+/g, " ").trim().toLowerCase();
+  const normalizeAccountName = (value) => value.replace(/\\s+/g, " ").trim().toLowerCase();
   const companyDomains = new Map();
   document.querySelectorAll(".table-wrap td").forEach((cell) => {
     const account = cell.querySelector("strong");
@@ -104,7 +104,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       } catch {}
     }
   });
-  const initials = (name) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+  const initials = (name) => name.split(/\\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
   const addOrganizationLogo = (element, accountName) => {
     if (!element || element.querySelector(".organization-logo")) return;
     const host = companyDomains.get(normalizeAccountName(accountName));
@@ -186,7 +186,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
       content.hidden = !expanded;
     });
     people.replaceChildren(peopleItems[0]);
-    card.insertBefore(more, people);
+    people.parentElement.insertBefore(more, people);
     people.after(content);
     card.dataset.progressiveDisclosure = "true";
   });
