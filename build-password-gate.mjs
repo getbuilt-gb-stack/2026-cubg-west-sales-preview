@@ -63,9 +63,12 @@ if (report.includes(oldMobileCss)) report = report.replace(oldMobileCss, newMobi
 if (!report.includes(newMobileCss)) {
   throw new Error("Could not find the expected mobile menu CSS");
 }
-report = report.replace(/(<a href="#roster">)Full Roster(<\/a>)/g, "$1Roster Directory$2");
-report = report.replace(/(<option value="#roster">)Full Roster(<\/option>)/g, "$1Roster Directory$2");
-report = report.replace(/(<h2 class="section" id="roster">)Full Roster(\s*<span)/, "$1Roster Directory$2");
+report = report.replace(/<li><a href="#roster">(?:Full Roster|Roster Directory)<\/a><\/li>/g, "");
+report = report.replace(/<option value="#roster">(?:Full Roster|Roster Directory)<\/option>/g, "");
+const rosterStart = report.indexOf('<h2 class="section" id="roster">');
+const footerStart = report.indexOf('<footer class="footer">', rosterStart);
+if (rosterStart >= 0 && footerStart >= 0) report = report.slice(0, rosterStart) + report.slice(footerStart);
+report = report.replace(/(id="reps">Rep Coverage <span class="badge">)(?:7 TABS|7 REPS \+ ALL)/, (_, prefix) => `${prefix}7 REPS + ALL`);
 const fullRosterTab = '<button class="rep-button roster-filter-button" type="button" data-roster-filter="all" aria-selected="false">Full Roster</button>';
 const unassignedRepTab = '<button class="rep-button " type="button" data-target="rep-unassigned" aria-selected="false">Unassigned</button>';
 if (!report.includes('class="rep-button roster-filter-button"')) {
@@ -87,7 +90,7 @@ const repCoverageCss = `<style id="rep-coverage-sticky-enhancements">
 .rep-panel .rep-heading .eyebrow{margin-bottom:6px}
 .rep-panel .rep-heading h3{margin:0}
 #reps.section{z-index:55;background:#f4f7f9}
-#roster ~ .table-wrap tbody tr[hidden]{display:none}
+.rep-panel.full-roster{display:block}
 @media(max-width:960px){.rep-tabs{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px))}.rep-panel .rep-heading{top:calc(var(--toc-sticky-height, 110px) + var(--hero-identity-height, 0px) + var(--rep-section-height, 42px) + var(--rep-tabs-height, 52px))}}
 </style>`;
 
@@ -185,7 +188,7 @@ const sectionOptions = [...nav.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)]
 const repOptions = [...nav.matchAll(/<button class="toc-rep-button[^\"]*" type="button" data-target="([^"]+)"[^>]*>([^<]+)<\/button>/g)]
   .map(([, target, label]) => `<option value="#reps" data-rep-target="${target}">${label}</option>`)
   .join("");
-const mobileMenu = `<div class="toc-mobile-bar"><label class="sr-only" for="toc-select">Jump to a section</label><select id="toc-select" class="toc-select" aria-label="Jump to a section"><option value="">On this page...</option>${sectionOptions.replace('<option value="#reps">Rep Coverage</option>', `<option value="#reps">Rep Coverage</option><optgroup label="Rep coverage">${repOptions}</optgroup>`).replace('<option value="#roster">Full Roster</option>', "<option value=\"#roster\">Full Roster</option>")}</select></div>`;
+const mobileMenu = `<div class="toc-mobile-bar"><label class="sr-only" for="toc-select">Jump to a section</label><select id="toc-select" class="toc-select" aria-label="Jump to a section"><option value="">On this page...</option>${sectionOptions.replace('<option value="#reps">Rep Coverage</option>', `<option value="#reps">Rep Coverage</option><optgroup label="Rep coverage">${repOptions}</optgroup>`)}</select></div>`;
 const navWithMobileMenu = nav.includes('<div class="toc-mobile-bar">')
   ? nav
   : nav.replace('<h5>On This Page</h5>', `${mobileMenu}<h5>On This Page</h5>`);
@@ -316,64 +319,44 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     target.scrollIntoView({behavior:"smooth", block:"start"});
     history.replaceState(null, "", selector);
   };
-  const rosterSection = document.getElementById("roster");
-  const rosterRows = [...document.querySelectorAll("#roster ~ .table-wrap tbody tr")];
-  const rosterOwnerFromRow = (row) => {
-    const context = row.querySelector("td:nth-child(5)")?.textContent || "";
-    return context.match(/Account owner:\s*(.+)/i)?.[1].trim() || "Unassigned";
+  const showRepPanel = (target) => {
+    document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.remove("full-roster"));
+    activateRep(target);
   };
-  const ownerNameFromTarget = (target) => target === "rep-unassigned"
-    ? "Unassigned"
-    : target.replace(/^rep-/, "").replace(/-/g, " ");
-  const isRosterVisible = () => {
-    const rect = rosterSection?.getBoundingClientRect();
-    return Boolean(rect && rect.top < window.innerHeight && rect.bottom > 0);
-  };
-  const setRosterFilter = (target) => {
-    if (!rosterSection) return;
-    const showAll = target === "all";
-    const owner = normalizeAccountName(ownerNameFromTarget(target));
-    rosterRows.forEach((row) => {
-      const visible = showAll || normalizeAccountName(rosterOwnerFromRow(row)) === owner;
-      row.hidden = !visible;
-      row.setAttribute("aria-hidden", String(!visible));
+  const showFullRoster = () => {
+    document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.add("full-roster"));
+    document.querySelectorAll(".rep-button,.toc-rep-button").forEach((button) => {
+      button.classList.remove("active");
+      button.setAttribute("aria-selected", "false");
     });
-    rosterSection.dataset.ownerFilter = showAll ? "all" : target;
     document.querySelectorAll(".roster-filter-button").forEach((button) => {
-      button.classList.toggle("active", showAll);
-      button.setAttribute("aria-selected", String(showAll));
+      button.classList.add("active");
+      button.setAttribute("aria-selected", "true");
     });
   };
   tocSelect?.addEventListener("change", () => {
     const option = tocSelect.selectedOptions[0];
     const repTarget = option?.dataset.repTarget;
     if (repTarget && typeof activateRep === "function") {
-      activateRep(repTarget);
-      setRosterFilter(repTarget);
-      if (!isRosterVisible()) scrollToSection("#reps");
+      showRepPanel(repTarget);
+      scrollToSection("#reps");
     } else if (tocSelect.value) {
-      if (tocSelect.value === "#roster") setRosterFilter("all");
       scrollToSection(tocSelect.value);
     }
   });
-  setRosterFilter("all");
   document.querySelectorAll(".rep-button,.toc-rep-button").forEach((button) => {
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopImmediatePropagation();
       if (button.classList.contains("roster-filter-button")) {
-        setRosterFilter("all");
-        scrollToSection("#roster");
+        showFullRoster();
+        scrollToSection("#reps");
         return;
       }
       const target = button.dataset.target;
-      activateRep(target);
-      setRosterFilter(target);
-      if (button.classList.contains("toc-rep-button") && !isRosterVisible()) scrollToSection("#reps");
+      showRepPanel(target);
+      if (button.classList.contains("toc-rep-button")) scrollToSection("#reps");
     }, true);
-  });
-  document.querySelectorAll('.toc a[href="#roster"]').forEach((link) => {
-    link.addEventListener("click", () => setRosterFilter("all"));
   });
   document.querySelectorAll('.conversation-view[data-view="prospect"] .conversation-card').forEach((card, cardIndex) => {
     if (card.dataset.progressiveDisclosure === "true") return;
