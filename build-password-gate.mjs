@@ -429,6 +429,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const offset = Number.isFinite(stickyTop) ? stickyTop : (Number.isFinite(scrollMarginTop) ? scrollMarginTop : 0);
     window.scrollTo({top:Math.max(0, documentTopFor(target) - offset), behavior:"smooth"});
     history.replaceState(null, "", selector);
+    if (typeof syncSubmenuStates === "function") syncSubmenuStates(target.id);
   };
   document.querySelectorAll('.toc a[href^="#"]').forEach((link) => link.addEventListener("click", (event) => {
     event.preventDefault();
