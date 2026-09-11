@@ -391,6 +391,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   };
   const tocSectionLinks = [...document.querySelectorAll('.toc a[href^="#"]')];
   const tocSectionTargets = tocSectionLinks.map((link) => document.querySelector(link.getAttribute("href"))).filter(Boolean);
+  let pendingMenuSectionId = null;
   let mainMenuSyncFrame = 0;
   const syncMainMenuState = () => {
     mainMenuSyncFrame = 0;
@@ -427,9 +428,13 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const stickyTop = target.classList.contains("section") ? parseFloat(computedStyle.top) : NaN;
     const scrollMarginTop = parseFloat(computedStyle.scrollMarginTop);
     const offset = Number.isFinite(stickyTop) ? stickyTop : (Number.isFinite(scrollMarginTop) ? scrollMarginTop : 0);
+    pendingMenuSectionId = target.id;
     window.scrollTo({top:Math.max(0, documentTopFor(target) - offset), behavior:"smooth"});
     history.replaceState(null, "", selector);
-    if (typeof syncSubmenuStates === "function") syncSubmenuStates(target.id);
+    if (typeof syncSubmenuStates === "function") {
+      syncSubmenuStates(target.id);
+      if (typeof schedulePendingMenuSection === "function") schedulePendingMenuSection(target.id);
+    }
   };
   document.querySelectorAll('.toc a[href^="#"]').forEach((link) => link.addEventListener("click", (event) => {
     event.preventDefault();
@@ -471,19 +476,38 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     });
   };
   const syncSubmenuStates = (sectionId) => {
-    const inTop5 = sectionId === "top5";
+    const activeSectionId = pendingMenuSectionId || sectionId;
+    const inTop5 = activeSectionId === "top5";
     document.querySelectorAll(".toc-mode-button").forEach((button) => {
       const active = inTop5 && button.dataset.modeTarget === selectedMode;
       button.classList.toggle("active", active);
       button.setAttribute("aria-selected", String(active));
     });
-    const inReps = sectionId === "reps";
+    const inReps = activeSectionId === "reps";
     document.querySelectorAll(".toc-rep-button").forEach((button) => {
       const active = inReps && ((button.dataset.rosterFilter === "all" && selectedRepTarget === "rep-full-roster") || button.dataset.target === selectedRepTarget);
       button.classList.toggle("active", active);
       button.setAttribute("aria-selected", String(active));
     });
   };
+  let pendingMenuSectionTimer = 0;
+  const finishPendingMenuSection = () => {
+    if (!pendingMenuSectionId) return;
+    const sectionId = pendingMenuSectionId;
+    pendingMenuSectionId = null;
+    window.clearTimeout(pendingMenuSectionTimer);
+    pendingMenuSectionTimer = 0;
+    syncSubmenuStates(sectionId);
+  };
+  const schedulePendingMenuSection = (sectionId) => {
+    pendingMenuSectionId = sectionId;
+    window.clearTimeout(pendingMenuSectionTimer);
+    pendingMenuSectionTimer = window.setTimeout(finishPendingMenuSection, 220);
+  };
+  window.addEventListener("scroll", () => {
+    if (pendingMenuSectionId) schedulePendingMenuSection(pendingMenuSectionId);
+  }, {passive:true});
+  window.addEventListener("scrollend", finishPendingMenuSection, {passive:true});
   if (window.IntersectionObserver) {
     const menuSections = ["#glance", "#top5", "#opps", "#news", "#reps"].map((selector) => document.querySelector(selector)).filter(Boolean);
     const submenuObserver = new IntersectionObserver((entries) => {
