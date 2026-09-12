@@ -111,7 +111,7 @@ if (!report.includes('class="toc-mode-button active"')) {
   report = report.replace('<li><a href="#top5">Top Prospect Conversations</a></li>', `<li><a href="#top5">Top Prospect Conversations</a></li>${top5ModeNavItems}`);
 }
 report = report.replace(/<li class="toc-subheading">Rep tabs<\/li>/g, "");
-const top5ModeMobileOptions = '<option value="#top5" data-mode-target="prospect">Cold / New</option><option value="#top5" data-mode-target="pipeline">Open Pipeline / Current Customer</option>';
+const top5ModeMobileOptions = '<optgroup label="Top Prospect Conversations"><option value="#top5" data-mode-target="prospect">Cold / New</option><option value="#top5" data-mode-target="pipeline">Open Pipeline / Current Customer</option></optgroup>';
 report = report.replace(/<option value="#top5" data-mode-target="(?:prospect|pipeline)">[^<]*<\/option>/g, "");
 if (!report.includes('value="#top5" data-mode-target="prospect"')) {
   report = report.replace('<option value="#top5">Top Prospect Conversations</option>', `<option value="#top5">Top Prospect Conversations</option>${top5ModeMobileOptions}`);
