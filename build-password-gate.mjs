@@ -123,6 +123,7 @@ const extraCss = `<style id="responsive-navigation-enhancements">
 @media(max-width:960px){.toc{position:sticky;top:var(--hero-identity-height, 84px);z-index:50;width:auto;max-height:none;margin:0 -10px 14px;padding:8px 10px;border-top:0;border-radius:0 0 7px 7px;background:rgba(255,255,255,.97);box-shadow:0 3px 10px rgba(15,35,55,.12)}.toc-mobile-bar{display:block}.toc h5,.toc>ul{display:none}.section{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px));margin-top:22px;padding:11px 8px 9px;font-size:20px}.section::before{top:-22px}.conversation-more-people{grid-template-columns:1fr}.toc-select{appearance:auto}main.wrap.mobile-page-mode>.mobile-page-section{display:none!important}main.wrap.mobile-page-mode>.mobile-page-section.mobile-page-active{display:block!important}main.wrap.mobile-page-mode>.rep-panel.mobile-page-section:not(.active){display:none!important}main.wrap.mobile-page-mode>.rep-panel.mobile-page-section.active{display:block!important}main.wrap.mobile-page-mode>.mobile-page-active.section,main.wrap.mobile-page-mode>.mobile-page-active.hero{cursor:pointer}main.wrap.mobile-page-mode>.mobile-page-active.section:focus-visible,main.wrap.mobile-page-mode>.mobile-page-active.hero:focus-visible{outline:2px solid #0f766e;outline-offset:2px}}
 @media(max-width:560px){.section{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px));font-size:19px}}
 main.wrap.mobile-page-mode:not([data-mobile-page-section="reps"])>.rep-panel.mobile-page-section{display:none!important}
+@media(max-width:960px){#reps.section,#reps + .section-copy,#reps ~ .rep-tabs,.rep-panel>.rep-heading{display:none!important}}
 </style>`;
 
 const modeMenuCss = `<style id="toc-conversation-mode-enhancements">
@@ -533,6 +534,23 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     scrollToSection("#top5");
   }, true));
   let selectedRepTarget = document.querySelector(".rep-panel.active")?.id || "rep-brittany-duncan";
+  const decorateMobileRepOptions = () => {
+    if (!tocSelect) return;
+    [...tocSelect.options].forEach((option) => {
+      const panelId = option.dataset.repTarget || (option.dataset.rosterFilter === "all" ? "rep-full-roster" : "");
+      if (!panelId || option.dataset.mobileLabelDecorated === "true") return;
+      const panel = document.getElementById(panelId);
+      const stats = [...(panel?.querySelectorAll(":scope > .rep-heading .rep-stats span") || [])]
+        .map((stat) => stat.textContent.replace(/\s+/g, " ").trim())
+        .filter(Boolean)
+        .join(" · ");
+      if (stats) {
+        option.textContent = option.textContent.trim() + " · " + stats;
+        option.dataset.mobileLabelDecorated = "true";
+      }
+    });
+  };
+  decorateMobileRepOptions();
   const showRepPanel = (target) => {
     selectedRepTarget = target;
     document.querySelectorAll(".rep-panel").forEach((panel) => panel.classList.remove("full-roster", "roster-view-hidden"));
