@@ -168,7 +168,7 @@ const conversationIdentityCss = `<style id="conversation-account-identity-enhanc
 @media(max-width:640px){.conversation-heading>div:first-child{grid-template-columns:80px minmax(0,1fr);column-gap:12px}.conversation-heading h3 .organization-logo{width:80px;height:80px}.conversation-heading h3 .organization-name{font-size:18px}.conversation-heading .asset-meta{font-size:9px}.conversation-heading .conversation-attendees{font-size:11px}}
 </style>`;
 const mobileProfileFlowCss = `<style id="mobile-profile-flow-enhancements">
-@media(max-width:960px){.rep-panel>.rep-heading{position:static!important;top:auto!important;display:block!important;height:auto!important;min-height:0!important;margin:0!important;padding:0 0 10px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}.rep-panel>.rep-heading>div:first-child{display:none!important;position:static!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important}.rep-panel>.rep-heading .rep-stats{display:grid!important;position:static!important;top:auto!important;height:auto!important;min-height:0!important;margin:0!important;border:1px solid #d8e0e7!important;border-radius:6px!important;box-shadow:none!important}.rep-panel>.rep-heading + .section-copy{display:none!important}.profile-priority-heading{position:static!important;top:auto!important;height:auto!important;min-height:0!important;margin:0 0 8px!important;box-shadow:none!important}.profile{height:auto!important;min-height:0!important;align-items:flex-start!important}.profile-body{height:auto!important;min-height:0!important;flex:1 1 auto!important}.profile-head-sticky{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px))!important;height:auto!important;min-height:0!important}}
+@media(max-width:960px){.rep-panel>.rep-heading{position:static!important;top:auto!important;display:block!important;height:auto!important;min-height:0!important;margin:0!important;padding:0 0 10px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}.rep-panel>.rep-heading>div:first-child{display:none!important;position:static!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important}.rep-panel>.rep-heading .rep-stats{display:grid!important;position:static!important;top:auto!important;height:auto!important;min-height:0!important;margin:0!important;border:1px solid #d8e0e7!important;border-radius:6px!important;box-shadow:none!important}.rep-panel>.rep-heading + .section-copy{display:none!important}.profile-priority-heading{position:static!important;top:auto!important;height:auto!important;min-height:0!important;margin:0 0 8px!important;box-shadow:none!important}.profile-priority-heading::before{display:none!important}.profile{height:auto!important;min-height:0!important;align-items:flex-start!important}.profile-body{height:auto!important;min-height:0!important;flex:1 1 auto!important}.profile-head-sticky{top:calc(var(--toc-sticky-height, 61px) + var(--hero-identity-height, 0px))!important;height:auto!important;min-height:0!important}}
 </style>`;
 const extraCssWithLogos = `${extraCss}${modeMenuCss}${repCoverageCss}${profileCoverageCss}${heroIdentityCss}${logoCss}${conversationIdentityCss}${mobileProfileFlowCss}`;
 
@@ -401,6 +401,17 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
   const tocSectionTargets = tocSectionLinks.map((link) => document.querySelector(link.getAttribute("href"))).filter(Boolean);
   const mobileViewport = window.matchMedia("(max-width:960px)");
   const mobilePageSectionIds = new Set(tocSectionTargets.map((section) => section.id));
+  const resetMobilePageScroll = () => {
+    if (!mobileViewport.matches) return;
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+    window.requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      root.style.scrollBehavior = previousScrollBehavior;
+    });
+  };
   tocSectionTargets.forEach((section) => {
     section.classList.add("mobile-page-section");
     section.dataset.mobilePageSection = section.id;
@@ -432,7 +443,7 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     if (historyMode === "push" || historyMode === "replace") {
       history[historyMode + "State"](null, "", "#" + sectionId);
     }
-    if (scroll) window.scrollTo({top:0, behavior:"smooth"});
+    if (scroll) resetMobilePageScroll();
     if (typeof syncMainMenuState === "function") syncMainMenuState();
     if (typeof syncSubmenuStates === "function") syncSubmenuStates(sectionId);
     return true;
@@ -608,7 +619,10 @@ const behaviorScript = `<script id="responsive-navigation-behavior">
     const sectionId = sectionIdFromLocation();
     if (mobileViewport.matches) {
       applyMobilePageSection(sectionId, {scroll});
-      if (!scroll) window.scrollTo({top:0, behavior:"auto"});
+      if (!scroll) {
+        resetMobilePageScroll();
+        window.setTimeout(resetMobilePageScroll, 0);
+      }
     } else if (isFullRoster) {
       scrollToSection("#reps", {historyMode:"replace"});
     }
