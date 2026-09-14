@@ -112,12 +112,7 @@ if (!report.includes('class="toc-mode-button active"')) {
   report = report.replace('<li><a href="#top5">Top Prospect Conversations</a></li>', `<li><a href="#top5">Top Prospect Conversations</a></li>${top5ModeNavItems}`);
 }
 report = report.replace(/<li class="toc-subheading">Rep tabs<\/li>/g, "");
-report = report.replace(/<optgroup label="Top Prospect Conversations">[\s\S]*?<\/optgroup>/g, "");
 const top5ModeMobileOptions = '<optgroup label="Top Prospect Conversations"><option value="#top5" data-mode-target="prospect">Cold / New</option><option value="#top5" data-mode-target="pipeline">Open Pipeline / Current Customer</option></optgroup>';
-report = report.replace(/<option value="#top5" data-mode-target="(?:prospect|pipeline)">[^<]*<\/option>/g, "");
-if (!report.includes('value="#top5" data-mode-target="prospect"')) {
-  report = report.replace('<option value="#top5">Top Prospect Conversations</option>', `<option value="#top5">Top Prospect Conversations</option>${top5ModeMobileOptions}`);
-}
 
 const extraCss = `<style id="responsive-navigation-enhancements">
 .toc-mobile-bar{display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.toc-select{width:100%;min-height:40px;padding:8px 34px 8px 11px;border:1px solid #c9d8e2;border-radius:5px;background:#fff;color:#294961;font:600 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.section{position:sticky;top:calc(18px + var(--hero-identity-height, 0px));z-index:18;isolation:isolate;margin-top:25px;padding-top:10px;background:#f4f7f9;scroll-margin-top:74px;box-shadow:0 3px 0 #f4f7f9;border-bottom:1px solid #d8e0e7}.section::before{content:"";position:absolute;z-index:-1;top:-22px;right:0;bottom:0;left:0;background:#f4f7f9}.context-disclosure>summary,.conversation-more>summary,.opportunity-card>summary{list-style:none}.context-disclosure>summary::-webkit-details-marker,.conversation-more>summary::-webkit-details-marker,.opportunity-card>summary::-webkit-details-marker{display:none}.disclosure-heading{display:flex;align-items:center;gap:8px}.disclosure-chevron{display:inline-block;width:8px;height:8px;flex:none;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.context-disclosure[open] .disclosure-chevron{transform:rotate(45deg)}.opportunity-card>summary:before{content:"";display:inline-block;width:8px;height:8px;flex:none;margin:0 3px 0 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.opportunity-card[open]>summary:before{transform:rotate(45deg)}.context-disclosure>summary:hover,.conversation-more>summary:hover,.opportunity-card>summary:hover{background:#f1f7f6}.conversation-more{margin-top:12px;border-top:1px solid #d8e1e8}.conversation-more>summary{padding:10px 2px;cursor:pointer;color:#153e5c;font-size:12px;font-weight:800}.conversation-more>summary:before{content:"";display:inline-block;width:8px;height:8px;margin:0 8px 1px 1px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease}.conversation-more[open]>summary:before{transform:rotate(45deg)}.conversation-more-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:2px 0 4px}.conversation-more .conversation-insight{margin-top:10px}
@@ -245,10 +240,12 @@ const sectionOptions = [...nav.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)]
 const repOptions = [...nav.matchAll(/<button class="toc-rep-button[^\"]*" type="button" data-target="([^"]+)"[^>]*>([^<]+)<\/button>/g)]
   .map(([, target, label]) => `<option value="#reps" data-rep-target="${target}">${label}</option>`)
   .join("");
-const mobileMenu = `<div class="toc-mobile-bar"><label class="sr-only" for="toc-select">Jump to a section</label><select id="toc-select" class="toc-select" aria-label="Jump to a section">${sectionOptions.replace('<option value="#reps">Rep Coverage</option>', `<option value="#reps">Rep Coverage</option><optgroup label="Rep coverage">${repOptions}${fullRosterMobileOption}</optgroup>`)}</select></div>`;
-const navWithMobileMenu = nav.includes('<div class="toc-mobile-bar">')
-  ? nav
-  : nav.replace('<h5>On This Page</h5>', `${mobileMenu}<h5>On This Page</h5>`);
+const mobileSectionOptions = sectionOptions
+  .replace('<option value="#top5">Top Prospect Conversations</option>', top5ModeMobileOptions)
+  .replace('<option value="#reps">Rep Coverage</option>', `<optgroup label="Rep Coverage">${repOptions}${fullRosterMobileOption}</optgroup>`);
+const mobileMenu = `<div class="toc-mobile-bar"><label class="sr-only" for="toc-select">Jump to a section</label><select id="toc-select" class="toc-select" aria-label="Jump to a section">${mobileSectionOptions}</select></div>`;
+const cleanNav = nav.replace(/<div class="toc-mobile-bar">[\s\S]*?<\/div>/, "");
+const navWithMobileMenu = cleanNav.replace('<h5>On This Page</h5>', `${mobileMenu}<h5>On This Page</h5>`);
 report = report.slice(0, navStart) + navWithMobileMenu + report.slice(navEnd + 6);
 if (report.includes('id="responsive-navigation-enhancements"')) {
   report = report.replace(/<style id="responsive-navigation-enhancements">[\s\S]*?<\/style>/, extraCssWithLogos);
